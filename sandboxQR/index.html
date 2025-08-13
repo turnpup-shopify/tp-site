@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-N729J8B');</script>
+    <!-- End Google Tag Manager -->
+    <link rel="icon" href="biteboard.ico" type="image/x-icon" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139552557-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-139552557-1');
+    </script>
+    <!-- end Google Analytics -->
+    <title>Menu App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="alexturney">
+    <link rel="stylesheet" type="text/css" href="grid.css">
+    <link rel="stylesheet" type="text/css" href="submenu.css">
+    <link rel="stylesheet" type="text/css" href="minboot.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N729J8B"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div id="mainContainer">
+        <div id="spinner"></div>
+        <div class="imgOverlay" id="imgOverlay" onclick="closeImgOverlay()">
+              <a href="javascript:void(0)" class="whiteMenu" onclick="closeImgOverlay()">&times;</a>
+        </div>
+        <div id="mySidepanel" class="sidepanel">
+          <a href="javascript:void(0)" class="whiteMenu" onclick="closeNav()"><!-- <img class="whiteMenu" src="hamburgerwhite.png"> -->&times;</a>
+          <p class="sidePanelFiltersTitle" id="filterSelectableSidePanel" style="color:white;font-weight:bold;display:block;display:none;">Available Filters</p>
+          <p class="sidePanelFiltersTitle" id="filtersSelectedSidePanel" style="color:white;font-weight:bold;display:none">Filters Selected<br><i>Click to unselect a filter</i></p>
+        </div>
+        <div class="column" id="filterContainer"></div>
+        <div id="topBar">
+            <div class="topBarContainer">
+                <a class="topLeftButton" id="backButton"><img id="backImg"></a>
+                <a class="topLeftButton" id="hamburgerButton"><img id="hamburgerImg"></a>
+                <a id="gifContainer"><img id="gif"></a>
+                <a id="placeName"><img id="placeNameImg" src="menu.png"></a>
+                <div style="clear:both;"></div>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div class="row">
+            <div class="column" id="one"></div>
+        </div>
+        <div class="row">
+            <div class="column" id="notes"></div>
+        </div>
+        <div class="socialgroup">
+            <a><img id="ig" src="igB.png"></a>
+            <a><img id="fb" src="fbB.png"></a>
+        </div>
+        <div style="margin-top:30px"></div>
+    </div>
+    <div id="splashContain">
+        <div id="header" class="yellow-bg">
+        <a href="https://instagram.com/biteboard.io" class="marquee flex" target="_blank">
+          <div class="marquee_list flex">
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">No Touch Menus</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Digital Menus</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">No Touch Menus</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Digital Menus</span>
+          </div>
+          <div class="marquee_list flex">
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">No Touch Menus</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Digital Menus</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">No Touch Menus</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Follow us @biteboard.io</span>
+            <span class="marquee_item flex caps-font gopher-font"><img class="tickerDot" src="greendot.png">Digital Menus</span>
+          </div>
+        </a>
+        </div>
+        <div class="projectContainer">
+            <div class="col-sm-6">
+                <div class="splashMock">
+                    <img src="mock2.png" width="60%">
+                </div>
+            </div>
+            <div class="col-sm-6" >
+                <div id="insert"></div>
+                <img id="splashLogo" src="biteboard_logo.png">
+                <div class="valueProp">
+                    <div>
+                        <p class="splashDescription"> We believe in the power of food to bring people together so we created a world-class dining experience.</p>
+                        <br>
+                        <p class="splashDescription"> Biteboard is a digital menu that enables restaurants and bars to tell a story. It's easy use, aesthetically pleasing, and requires no physical contact (no germs).
+                           <br> <br> Get in touch with us if you'd like to learn more or partner with us.</p>
+                        <label for="Email">Email:</label>
+                        <input type="text" name="email" id="email" tabindex="1"/>
+                        <br><br>
+                        <a class="sub" tabindex="2">Submit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <script src="menu.js"></script>
+    <script src="menufunctions.js"></script>
+    <script type="text/javascript">
+        $('.sub').click(function() {
+            console.log("email click!");
+            var email = document.getElementById("email").value
+            sendEmail(email);
+        });
+
+        function openNav() {
+          document.getElementById("mySidepanel").style.width = "100vw";
+        }
+
+        /* Set the width of the sidebar to 0 (hide it) */
+        function closeNav() {
+          document.getElementById("mySidepanel").style.width = "0";
+        }
+
+        function closeImgOverlay() {
+            document.getElementById("imgOverlay").style.width = "0";
+            document.getElementById("imgOverlay").style.height = "0";
+            document.getElementById("overlayImg").parentNode.removeChild(document.getElementById("overlayImg"));
+        }
+
+        const shareBtn = document.querySelector('#gif');
+
+        shareBtn.addEventListener('click', () => {
+          if (navigator.share) {
+            navigator.share({
+              title: 'Menu',
+              text: 'Check out the menu here!',
+              url: window.location.href
+            }).then(() => {
+              console.log('Thanks for sharing!');
+            })
+            .catch(err => {
+              console.log('Couldnt share because of', err.message);
+            });
+          } else {
+            console.log('web share not supported');
+          }
+        });
+        </script>
+</body>
+</html>

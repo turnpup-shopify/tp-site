@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<title>Alex Turney</title>
+<link rel="stylesheet" type="text/css" href="../../css/bootstrap.css">
+<link rel="shortcut icon" href="../../imgBin/favicon1.ico">
+<link rel="stylesheet" type="text/css" href="../../css/alexturney.css">
+<link rel="stylesheet" type="text/css" href="../../css/alex.css">
+</script>
+<style></style>
+</head>
+<body>
+<script src="../../js/jquery.js"></script>
+<script src="../../js/bootstrap.js"></script>
+<div style="width:100%;padding-left:0;padding-top:0;padding-bottom:0;margin-top:0;margin-bottom:0;">
+  <div class="leftpanel" style="padding-top:60px;top:0;">
+    <div class="mainname">alex turney</div>
+    <div class="maindesc"><div class="type">Student. Problem Solver. Innovator.</div></div>
+    <div class="alexlist">
+      <br>
+      <br>
+      <br>
+      <br>
+       <div style="width:80px;margin:0 auto;">
+        <a><img class="showappear" src="/indexFiles/AboutMe.png" style="margin:0 auto;width:80px;height:auto;"></a>
+        <br>
+      </div>
+      <div id="about_appear" style="width:200px;margin:0 auto;">
+        <p style="color:white;"> BS in Industrial Engineering and Operations Research from UC Berkeley. </p>
+      </div>
+      <br>
+      <br>
+      <div style="width:140px;margin:0 auto;padding-right:20px;">
+        <a href="/indexFiles/AlexTurneyResume.pdf"><img src="/indexFiles/resume.png" style="margin:0 auto;width:140px;height:100px"></a><br>
+      </div>
+      <br>
+      <br>
+      <div style="width:80px;margin:0 auto;">
+        <a><img src="/indexFiles/contact.png" id="showcontact" style="margin:0 auto;width:80px;height:60px;"></a><br>
+      </div>
+      <br>
+      <div id="contact_appear" style="width:200px;margin:0 auto;">
+        <p style="color:white;"> (949) 678 - 5047 <br> a.turney@sbcglobal.net </p>
+      </div>
+        <br>
+       <div style="width:80px;margin:0 auto;">
+        <a href="../../index.html"><img src="/indexFiles/Back.png" id="showcontact" style="margin:0 auto;width:80px;height:60px;"></a><br>
+      </div>
+        <br>
+        <br>
+    </div>
+  </div>
+  <div id="rightpanel">
+  <div style="width:100%;">
+  <div style="margin:0 auto;font-family:'Times New Roman', Times, serif";>
+
+    <div class="col-lg-12" style="width:800px;margin:0 auto;float:none;">
+<img src="FinalChair.png" width="100%" >
+
+
+    </div>
+    </div>
+  </div>
+</div>
+<script>
+$(".socialgroup").hide();
+$("#contact_appear").hide();
+$("#about_appear").hide();
+$( ".imgcontain" ).hover(function() {
+  $(this).animate({
+    opacity: 0.8,
+  }, 300 );
+},function(){ $(this).animate({
+    opacity:1,
+  }, 300 );
+});
+$("#showcontact").click(function(){
+  $("#contact_appear").show("slow");}
+);
+$(".showappear").click(function(){
+    $("#about_appear").show("slow");}
+);
+var toggle = false;
+$('.socialSelect').on('click', function () {
+    if (toggle == false) {
+        $(".socialgroup").show("");
+        $('.socialSelect').animate({
+            'left': '150px'
+        });
+        toggle = true;
+    } else {
+        $(".socialgroup").hide("");
+        $('.socialSelect').animate({
+            'left': '34px'
+        });
+        toggle = false;
+    }
+});
+
+</script>
+</body>
+</html>
+
+
+

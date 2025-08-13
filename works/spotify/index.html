@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color:white">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Alex Turney</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../css/subpage.css">
+    <link rel="stylesheet" type="text/css" href="../../css/new.css">
+    <link rel="shortcut icon" href="../../imgBin/favicon1.ico">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400" rel="stylesheet">
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+        <!-- Google Tag Manager -->
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-T4FHGCC');</script>
+        <!-- End Google Tag Manager -->
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-58905914-1');
+        </script>
+    <style>
+        h1 {
+            color: black;
+            margin: 10px auto 20px;
+            font-family: 'Cardo', serif;
+            font-weight: 400;
+            font-size: 48px;
+            text-align:left;
+        }
+        p {
+            font-family: 'Cardo', serif;
+            font-weight: 300;
+            font-size: 18px;
+            margin: 6px 0px;
+        }
+        h2 {
+            font-size: 24px;
+            margin: 20px 0px;
+            font-weight: bold;
+        }
+        .break {
+            height: 10px;
+            margin: 0;
+            padding: 0;
+        }
+        .filters {
+            background-color:#EEE;
+        }
+    </style>
+</head>
+
+<body>
+        <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4FHGCC"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- Google Tag Manager (noscript) -->
+    <script src="../../js/jquery.js"></script>
+    <script src="../../js/bootstrap.js"></script>
+    <script src="../../js/sets.js"></script>
+    <div class="topContainer">
+        <div class="filters">
+            <div class="filter" id="intro_link">intro</div>
+            <div class="filter" id="demo_link">prototype</div>
+        </div>
+    </div>
+    <div id="intro">
+        <div class="projectContainer">
+            <h1> Spotify Social Feature </h1>
+            <h2>the idea</h2>
+            <p>
+                Spotify's vision is to make music discovery social and to connect people through music.
+            </p>
+            <h2>the gap<h2>
+            <p>
+                The iOS app fails at enabling users to discover new music in a social way. It would be an easy win to leverage the social network that Spotify has already built to enable collaboration and more social engagement.
+            </p>
+            <h2>primary metric</h2>
+            <p>
+                Increase session length.
+            </p>
+            <h2>the solution</h2>
+                <p>
+                    There is a large use case for groups of people wanting to collaborate on a single playlist.  This feature would allow people to like, comment, and collaborate on a playlist that could be for a study session, a house party, or to play at work the next day.
+                </p>
+        </div>
+        </div>
+        <div class="projectContainer">
+            <div>
+                <div height="20px"></div>
+                <img src="Spotify_Mock.jpg" style="width:100%;max-width:2000px;">
+                <h1 style="color:black;margin:40px auto;"> Proof of Concept Video </h1>
+                <div class="iframe-container" id="demo">
+                    <iframe src="https://www.youtube.com/embed/a9Ef0Wpw7e0" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div style="height:30px"></div>
+                <div style="col-sm-12">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $("#demo_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#demo").offset().top
+        }, "slow");
+    });
+    $("#intro_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#intro").offset().top
+        }, "slow");
+    });
+    var divHeight = $(window).scrollTop();
+    var viewportHeight = $(window).height();
+    // set the positioning of the filters on the page
+    var topOfGridPosition = $('.projectContainer').position()
+    var filterHeight = topOfGridPosition.top + 80;
+    $('.filters').css('top',filterHeight+"px");
+    var filterWidth = $(window).width()*.04;
+    $('.filters').css('right',filterWidth+"px");
+    </script>
+</body>
+
+</html>

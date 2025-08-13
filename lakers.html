@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<link rel="stylesheet" href="css/animate.css">
+<link rel="stylesheet" type="text/css" href="css/alexturney.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Lakers Visualization 3-Peat</title>
+<style>
+	p {
+		font-size: 11px;
+	}
+
+	.hidden {
+	  visibility: hidden;
+	  opacity: 0;
+	  transition: visibility 0s .5s, opacity .5s linear;
+	}
+
+	.visible {
+	  visibility: visible;
+	  opacity: 1;
+	  transition: opacity 2s linear;
+	}
+
+	#main {
+		width: 1100px;
+		float: left;
+		display: block;
+	}
+	.d3-tip {
+	  line-height: 1;
+	  font-weight: bold;
+	  padding: 12px;
+	  background: rgba(0, 0, 0, 0.8);
+	  color: #fff;
+	  border-radius: 2px;
+	}
+
+
+
+	/* Creates a small triangle extender for the tooltip */
+	.d3-tip:after {
+	  box-sizing: border-box;
+	  display: inline;
+	  font-size: 10px;
+	  width: 100%;
+	  line-height: 1;
+	  color: rgba(0, 0, 0, 0.8);
+	  content: "\25BC";
+	  position: absolute;
+	  text-align: center;
+	}
+
+	/* Style northward tooltips differently */
+	.d3-tip.n:after {
+	  margin: -1px 0 0 0;
+	  top: 100%;
+	  left: 0;
+	}
+
+	.dropInd {
+		display: inline-block;
+		float: left;
+	}
+
+	.styled-select select {
+	   background: transparent;
+	   opacity: 50%;
+	   width: 268px;
+	   font-size: 16px;
+	   padding: 2px 5px 2px 10px;
+	   line-height: 1;
+	   border: 0;
+	   border-radius: 0;
+	   height: 34px;
+	   -webkit-appearance: none;
+   }
+
+   .styled-select option {
+	   background: #eee;
+	   width: 268px;
+	   padding: 5px;
+	   font-size: 16px;
+	   line-height: 1;
+	   border: 0;
+	   border-radius: 0;
+	   height: 34px;
+	   -webkit-appearance: none;
+   }
+
+   .styled-select {
+	  /* background: transparent;
+	   width: 800px; */
+	   width: 268px;
+	   height: 36px;
+	   margin: 20px;
+	   background: url(imgBin/drop.png) no-repeat right #ddd;
+	   background-size: 36px 36px;
+	   border: 1px solid #000;
+	}
+
+	.styled-select:active {
+	  /* background: transparent;
+	   width: 800px; */
+	  outline: none;
+
+	}
+
+   input:focus { outline: none; }
+
+   #t span {
+	   color: #93C;
+   }
+
+
+
+</style>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+
+<body>
+
+<script src="jquery.js"></script>
+<script src="bootstrap.js"></script>
+
+<h1 id="t">  </h1>
+
+<div class="dropInd">
+	<div class="styled-select">
+    <select id="type" onchange="works()">
+      <option value="Points" selected>Points</option>
+      <option value="Rebounds">Rebounds</option>
+      <option value="Assists" >Assists</option>
+      <option value="Steals">Steals</option>
+    </select>
+   </div>
+ </div>
+<div  class="dropInd">
+	<div class="styled-select">
+    <select id="year" onchange="works()">
+      <option value="lakers2000.csv" selected>2000 Championship Team</option>
+      <option value="lakers2001.csv">2001 Championship Team</option>
+      <option value="lakers2002.csv" >2002 Championship Team</option>
+    </select>
+	</div>
+</div>
+<div width="1000px" id="main">
+
+</div>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+<script>
+	window.onLoad = works();
+
+	function animationHover(element, animation){
+    element = $(element);
+    element.hover(
+        function() {
+            element.addClass('animated ' + animation);
+        },
+        function(){
+            //wait for animation to finish before removing classes
+            window.setTimeout( function(){
+                element.removeClass('animated ' + animation);
+            }, 2000);
+        });
+	}
+
+	/* $(document).ready(function(){
+		$('#t').each(function() {
+			animationHover(this, 'bounce');
+		});
+	}) */
+
+
+	function works() {
+		//document.getElementById("type").innerHTML = "Lakers Average " + $("#type").val() + ".";
+		var currentValue = $("#type").val();
+		var currentYear = $("#year").val();
+		var currentYearText = $("#year :selected").text();
+		document.getElementById("t").innerHTML = "Lakers " + currentYearText + " Team Average <span>"  + currentValue + "</span>.";
+		stats(currentValue, currentYear);
+	}
+
+	function stats (currentValue, currentYear) {
+
+		var selected = currentValue;
+		var selectedYear = currentYear;
+		d3.select("svg")
+       		.remove();
+		d3.csv(selectedYear, function(error, data) {
+
+			data.forEach(function (d) {
+				d.Player = d.Player;
+				d.Points = +d.Points;
+				d.Rebounds = +d.Rebounds;
+				d.Assists = +d.Assists;
+				d.Steals = +d.Steals;
+			});
+
+			console.log(data);
+
+			var tip = d3.tip()
+      			.attr('class', 'd3-tip')
+      			.html(function(d) { return '<span>' + d[selected] + '</span>'})
+      			.offset([-12, 0])
+
+
+
+			/*var num = [];
+			data.forEach(function (d, i) {
+				if (d.Platform == selected) {
+					num.push(d);
+				}
+			});	*/
+
+			numberOfData = data.length;
+
+
+			var maxy = d3.max(data, function(d) { return d[selected]; });
+			console.log(maxy);
+
+			var x = d3.scale.linear().domain([0, data.length]).range([0, 600]);
+
+			var y = d3.scale.linear()
+				.domain([maxy, 0])
+				.range([0, 600]);
+
+			var yAxis = d3.svg.axis()
+				.scale(y)
+				.orient("left");
+
+			var canvas = d3.select("#main")
+				.append("svg")
+				.attr("width", 1000)
+				.attr("height", 800)
+				.append("g") //everything contained inside a g tag so transformationg can occur
+				.attr("transform", "translate(40, 40)");
+
+			canvas.call(tip)
+
+			var amplify = d3.scale.linear()
+				.domain([0, maxy])
+				.range([0, 600]);
+
+			var color = d3.scale.linear()
+				.domain([0, maxy])
+				.range(["red", "blue"]);
+
+			var bars = canvas.selectAll("rect")
+				.data(data)
+				.enter()
+					.append("rect")
+					.attr("id", "bar")
+					.attr("x", function(d, i) {return (20 + i*70)})
+					.attr("y", function(d) {return (600 - amplify(d[selected]))})
+					.attr("width", 30)
+					.attr("height",  function(d) { return (amplify(d[selected])) })
+					.attr("fill", function(d) { return color(d[selected]) })
+					.on('mouseover', tip.show)
+      				.on('mouseout', tip.hide)
+
+
+
+			data.forEach(function(d) {
+				console.log(d["Player"] + " " + d[selected])
+			})
+
+			var text = canvas.selectAll("text")
+                        .data(data)
+                        .enter()
+                        .append("text");
+
+			var textLabels = text
+                 .attr("x", function(d, i) {return  35 + i*70})
+                 .attr("y", 610)
+                 .text( function (d) { return d.Player; })
+                 .attr("font-family", "sans-serif")
+                 .attr("font-size", "10px")
+                 .attr("fill", "black")
+				 .attr("text-anchor", "middle");
+
+
+
+			canvas.append("g")
+      			.attr("class", "y axis")
+      			.call(yAxis)
+
+		});
+	}
+
+
+</script>
+</body>
+</html>

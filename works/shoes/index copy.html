@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Alex Turney</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../css/SubPage.css">
+    <link rel="shortcut icon" href="../../imgBin/favicon1.ico">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css" />
+    <!-- Add the slick-theme.css if you want default styling -->
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick-theme.css" />
+</head>
+<style>
+.slick-prev:before, .slick-next:before {
+    color:red !important;
+}
+.single-item {
+  width: 50%;
+  margin: 0 auto;
+}
+</style>
+
+<body style="background-color:white;">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script>
+    <script src="../../js/bootstrap.js"></script>
+    <script src="../../js/sets.js"></script>
+    <div class="single-item">
+        <div><img src="moonedition1_02.png" width="500px"></div>
+        <div>BBBBBB</div>
+        <div>CCCCCC</div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        $('.single-item').slick({
+          arrows:true,
+        });
+    });
+
+    </script>
+</body>
+
+</html>

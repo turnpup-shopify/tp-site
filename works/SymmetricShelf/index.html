@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Alex Turney</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../css/subpage.css">
+    <link rel="shortcut icon" href="../../imgBin/favicon1.ico">
+    </script>
+    <style></style>
+</head>
+
+<body>
+    <script src="../../js/jquery.js"></script>
+    <script src="../../js/bootstrap.js"></script>
+    <script src="../../js/sets.js"></script>
+    <div class="SetSection" style="background-color:white">
+        <div class="projectNav">
+            <p><a id="rhino_link"> - rhino shoe modeling </a></p>
+            <p><a id="threeD_link"> - solidworks shoe modeling </a></p>
+            <p><a id="shelf_link"> - symmetric shelf </a></p>
+        </div>
+        <div id="rhino">
+            <div class="projectContainer">
+                <div style="height:50px"></div>
+                <h1 style="color:black;"> Rhino 3D Shoe Modeling </h1>
+                <p> The goal of this project was to learn how to use Rhino by turning one of my sketches into a 3D model using rhino. <br> I started with an import of a last and built the midsole around that.  Working upwards I included a thin shell to help encase the upper of the shoe. </p>
+                <div style="height:30px"></div>
+                <div style="col-sm-12"><img width="100%" src="3DModelingRhino.png">
+                </div>
+            </div>
+        </div>
+        <div id="threedshoes">
+            <div class="projectContainer">
+                <div style="height:50px"></div>
+                <h1 style="color:black;"> Solidworks 3D Shoe Modeling </h1>
+                <p> The goal of this was to experiment with solidworks 3D modeling to see if I could crete a model for one of my sketches. The idea was to create a modern shoe that would be durable and lightweight.</p>
+                <div style="height:30px"></div>
+                <div style="col-sm-12"><img width="100%" src="3dshoes.png">
+                </div>
+            </div>
+        </div>
+        <div id="symmetricshelf">
+            <div style="height:50px"></div>
+            <div class="projectContainer">
+                <div style="col-sm-12"><img width="100%" src="SYMMETRICSHELF.png">
+                </div>
+                <div style="height:50px"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $("#shelf_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#symmetricshelf").offset().top - 50
+        }, "slow");
+    });
+    $("#threeD_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#threedshoes").offset().top
+        }, "slow");
+    });
+    $("#rhino_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#rhino").offset().top
+        }, "slow");
+    });
+    </script>
+</body>
+
+</html>

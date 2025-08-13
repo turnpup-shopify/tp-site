@@ -1,0 +1,143 @@
+def poll_product_set_operation(operation_id):
+    query = """
+    query ProductSetOperation($id: ID!) {
+      productSetOperation(id: $id) {
+        id
+        status
+        userErrors {
+          code
+          field
+          message
+        }
+      }
+    }
+    """
+    while True:
+        result = run_graphql(query, {"id": operation_id})
+        operation = result.get("data", {}).get("productSetOperation", {})
+        status = operation.get("status")
+        if status == "COMPLETED":
+            print(f"✅ Product set operation {operation_id} completed successfully.")
+            return True
+        elif status == "FAILED":
+            errors = operation.get("userErrors", [])
+            print(f"❌ Product set operation {operation_id} failed: {errors}")
+            return False
+        else:
+            print(f"⏳ Product set operation {operation_id} status: {status}. Waiting...")
+            import time
+            time.sleep(2)
+
+
+def get_product_structure_by_sku(sku):
+    query = """
+    query($query: String!) {
+      productVariants(first: 1, query: $query) {
+        edges {
+          node {
+            id
+            sku
+            selectedOptions {
+              name
+              value
+            }
+            product {
+              id
+              options {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+    result = run_graphql(query, {"query": f"SKU:{sku}"})
+    edges = result.get("data", {}).get("productVariants", {}).get("edges", [])
+    if edges:
+        node = edges[0]["node"]
+        variant_id = node["id"]
+        product_id = node["product"]["id"]
+        product_options = [{"name": opt["name"]} for opt in node["product"]["options"]]
+        option_values = [{"name": opt["name"], "optionValue": opt["value"]} for opt in node["selectedOptions"]]
+        return {
+            "product_id": product_id,
+            "variant_id": variant_id,
+            "option_values": option_values,
+            "product_options": product_options
+        }
+    return None
+
+
+def update_variant_cost_via_product_set(product_gid, variant_gid, cost, product_options, option_values):
+    mutation = """
+    mutation SetProductWithCosts($input: ProductSetInput!) {
+      productSet(input: $input) {
+        productSetOperation {
+          id
+          status
+          userErrors {
+            code
+            field
+            message
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+    """
+    variables = {
+        "input": {
+            "id": product_gid,
+            "productOptions": product_options,
+            "variants": [
+                {
+                    "id": variant_gid,
+                    "optionValues": option_values
+                }
+            ]
+        }
+    }
+
+    result = run_graphql(mutation, variables)
+    print(f"📦 productSet result: {result}")
+    user_errors = result.get("data", {}).get("productSet", {}).get("userErrors", [])
+    operation = result.get("data", {}).get("productSet", {}).get("productSetOperation", {})
+    operation_id = operation.get("id")
+
+    if user_errors:
+        print(f"❌ Failed to update product set for variant {variant_gid}: {user_errors}")
+        return
+
+    if operation_id:
+        poll_product_set_operation(operation_id)
+    else:
+        print(f"❌ No productSetOperation ID returned for variant {variant_gid}.")
+
+
+def update_cost_rest(variant_id, cost):
+    import requests
+    url = f"https://your-shopify-store.myshopify.com/admin/api/2023-04/variants/{variant_id}.json"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Shopify-Access-Token": "your-access-token"
+    }
+    payload = {
+        "variant": {
+            "id": variant_id,
+            "cost": str(round(float(cost), 2))
+        }
+    }
+    print(f"🔍 Sending PUT request to URL: {url}")
+    print(f"🔍 Headers: {headers}")
+    print(f"🔍 Payload: {payload}")
+    response = requests.put(url, json=payload, headers=headers)
+    print(f"🔍 Response status: {response.status_code} {response.reason}")
+    print(f"🔍 Response body: {response.text}")
+    if response.status_code == 200:
+        print(f"✅ Successfully updated cost for variant {variant_id} via REST API.")
+    else:
+        print(f"❌ Failed to update cost for variant {variant_id} via REST API: {response.text}")

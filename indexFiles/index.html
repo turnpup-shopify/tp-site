@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-58905914-1');
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T4FHGCC');</script>
+    <!-- End Google Tag Manager -->
+    <title>Alex Turney</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="built by: alex turney">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="css/new.css">
+    <link rel="shortcut icon" href="imgBin/favicon1.ico">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4FHGCC"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/sets.js"></script>
+    <div class="Container">
+        <div class="backgroundImage"></div>
+        <div class="topContainer">
+            <div class="filters">
+                <div class="filter" onclick="filterPM()"><span>&#8226;</span>Career</div>
+                <!-- <hr> -->
+                <div class="filter" onclick="filterBiz()"><span>&#8226;</span>Concepts</div>
+                <!-- <hr> -->
+                <div class="filter" onclick="filterDes()"><span>&#8226;</span>Design</div>
+                <!-- <hr> -->
+                <div class="filter" onclick="scrollToPhotos()"><span>&#8226;</span>Photos</div>
+            </div>
+            <div class="desc">
+                    <p>Digital Product. <br> Photography. <br> Design.</p>
+            </div>
+            <div class="row" id="topOfGrid">
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img id="milkbar" src="/indexFiles/MilkBar.jpg" width="100%">
+                        <div class="overlay">
+                            <a href="https://www.milkbarstore.com">
+                            <div class="text">MILK BAR: <br> Building the Future of Dessert</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img id="spotify" src="/indexFiles/nrc.jpeg" width="100%">
+                        <div class="overlay">
+                            <a href="https://www.nike.com/nrc-app">
+                            <div class="text">Nike Run Club</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img id="deconstruct" src="/indexFiles/NAAR.png" width="100%">
+                        <div class="overlay">
+                            <a href="https://hypebeast.com/2018/7/nike-in-store-retail-shopping-app-video">
+                            <div class="text">Nike App In-Store Experience</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+            <div class="row" id="BusinessSection">
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img id="passbook" src="/indexFiles/FootLocker.jpeg" width="100%">
+                        <div class="overlay">
+                            <a href="https://www.engadget.com/2019/08/09/nike-foot-locker-community-store-nikeplus-app-shoecase/">
+                            <div class="text">Nike X Foot Locker In-Store Experience</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img id="3d" src="indexFiles/menu.png" width="100%">
+                        <div class="overlay">
+                            <a href="https://biteboard.io?grouping=menu&company=riverpig">
+                            <div class="text">Founder of Biteboard</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img id="passbook" src="/indexFiles/passbook.png" width="100%">
+                        <div class="overlay">
+                            <a href="/works/passbook">
+                            <div class="text">Concept: Passbook App</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img src="/indexFiles/htgt.png" id="htgt" width="100%">
+                        <div class="overlay">
+                            <a href="works/branding">
+                            <div class="text">Branding Work</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                 <div class="col-sm-4">
+                    <div class="set">
+                        <img id="sneaks" src="imgBin/sneaks.png" width="100%">
+                        <div class="overlay">
+                            <a href="https://vimeo.com/195575408">
+                            <div class="text">Advertising Concept</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img id="shoes" src="/indexFiles/digitalart.png" width="100%">
+                        <div class="overlay">
+                            <a href="works/digitalart">
+                            <div class="text">Digital Art</div>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- <div class="set">
+                        <a href="works/shoes"><img id="shoes" src="/indexFiles/shoe.png" width="100%">
+
+                        <div class="overlay">
+                            <div class="text">SHOE CONCEPTS</div>
+                        </div>
+                        </a>
+                    </div> -->
+<!--                     <div class="set" id="Lean Chair">
+                        <a href="works/chair"><img src="indexFiles/TheLeanChair.png" alt="Lean Chair" id="leanChair">
+                        <div class="overlay">
+                            <div class="text">Furniture Design</div>
+                        </div>
+                          </a>
+                    </div> -->
+                </div>
+            </div>
+            <!-- <div style="clear:both;height:30px;"></div> -->
+        </div>
+        <!-- PHOTOGRAPHY PHOTOGRAPHY PHOTOGRAPHY -->
+        <div class="bottomContainer" id="photography">
+            <p class="h1" style="padding: 20px 0px;"> Photography </p>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img src="https://farm9.staticflickr.com/8369/8413025106_96d6ca0374_b.jpg" alt="IMG_1651" id="Third_Click">
+                            <div class="overlay">
+                                <a href="works/photos?set=nature">
+                                <div class="text">Nature</div>
+                                </a>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img src="https://farm7.staticflickr.com/6138/5988379494_a0c8a10bab_b.jpg">
+                            <div class="overlay">
+                                <a href="works/photos?set=surf">
+                                <div class="text">Surf</div>
+                                </a>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img src="https://c1.staticflickr.com/5/4251/34155026774_71f77be46d_k.jpg">
+                            <div class="overlay">
+                                <a href="works/photos?set=iceland">
+                                <div class="text">Iceland</div>
+                                </a>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img src="https://farm4.staticflickr.com/3805/13914375343_c09fa77c85_b.jpg">
+                            <div class="overlay">
+                                <a href="works/photos?set=newyork">
+                                <div class="text">New York</div>
+                                </a>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                       <img src="https://farm3.staticflickr.com/2916/14762872922_5a9192a18d.jpg">
+                            <div class="overlay">
+                                 <a href="works/photos?set=concerts">
+                                <div class="text">Concerts</div>
+                                </a>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="set">
+                        <img src="https://farm4.staticflickr.com/3874/14839335864_6d24359d28.jpg">
+                            <div class="overlay">
+                                <a href="works/photos?set=pnw">
+                                <div class="text">Portland/Seattle</div>
+                                </a>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="socialgroup" style="padding-bottom:30px;">
+                <a href="https://www.instagram.com/turnpup/"><img src="imgBin/insta.jpg"></a>
+                <a href="https://www.linkedin.com/in/alex-turney-27822731"> <img src="imgBin/liBW.png"> </a>
+            </div>
+        </div>
+    </div>
+    <script>
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+        $(".set").on('click', function(event){
+            $(".custom_active").removeClass('custom_active');
+            $(this).addClass('custom_active');
+        })
+    }
+    function filterPM() {
+        $('html, body').animate({
+            scrollTop: $(".row").offset().top - 50
+        }, "slow");
+        $( ".row:eq(0)" ).fadeTo( 0 , 1, function() {});
+        $( ".row:eq(2)" ).fadeTo( 0 , 0.4, function() {});
+        $( ".row:eq(1)" ).fadeTo( 0 , 0.4, function() {});
+    }
+    function filterDes() {
+        $('html, body').animate({
+            scrollTop: $(".row:eq(2)").offset().top - 200
+        }, "slow");
+        $( ".row:eq(2)" ).fadeTo( 0 , 1, function() {});
+        $( ".row:eq(1)" ).fadeTo( 0 , 0.4, function() {});
+        $( ".row:eq(0)" ).fadeTo( 0 , 0.4, function() {});
+    }
+    function filterBiz() {
+        $('html, body').animate({
+            scrollTop: $(".row:eq(1)").offset().top - 200
+        }, "slow");
+        $( ".row:eq(1)" ).fadeTo( 0 , 1, function() {});
+        $( ".row:eq(2)" ).fadeTo( 0 , 0.4, function() {});
+        $( ".row:eq(0)" ).fadeTo( 0 , 0.4, function() {});
+    }
+    function scrollToPhotos() {
+        $('html, body').animate({
+            scrollTop: $(".bottomContainer").offset().top + 30
+        }, "slow");
+    }
+    // set how far down the photos sit on the page
+    var divHeight = $(window).scrollTop();
+    var viewportHeight = $(window).height();
+    var bottomContainerHeight = viewportHeight*1;
+    $(".bottomContainer").css('top', bottomContainerHeight + "px");
+    // set the positioning of the filters on the page
+    var topOfGridPosition = $('#topOfGrid').position()
+    var filterHeight = topOfGridPosition.top - 160;
+    $('.filters').css('top',filterHeight+"px");
+
+
+	let floatingmenu = document.querySelector(".filters");
+	setTimeout(function(){ 
+		floatingmenu.classList.add("expandedFilters");
+	    var filterWidth = $(window).width()*.04;
+	    $('.filters').css('right',filterWidth+"px");
+	 }, 0.5	);
+
+    // some other crazy thing
+    $(window).scroll(function() {
+        var dh = $(window).scrollTop();
+        var vh = $(window).height();
+        if (dh > bottomContainerHeight) {
+            $(".backgroundImage").css("background-image", "url('../imgBin/photo.jpg')");
+            // document.getElementById("hm").innerHTML = "";
+            $(".navicons").hide();
+        } else {
+            $(".navicons").show();
+            $(".backgroundImage").css("background-image", " url(../imgBin/photo.jpg)");
+        }
+    })
+    </script>
+</body>
+</html>

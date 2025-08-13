@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-N729J8B');</script>
+    <!-- End Google Tag Manager -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139552557-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-139552557-1');
+    </script>              
+    <!-- end Google Analytics -->
+    <title>Menu App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" type="text/css" href="grid.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N729J8B"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div class="mainContainer">
+        <div class="row">
+            <div class="column" id="mainTitle"></div>
+            <a class="backButton" id="backButton"><img id="backImg"></a>
+        </div>
+        <div class="row">
+            <div class="column" id="one"></div>
+            <div class="column" id="two"></div>
+            <div class="column" id="three"></div>
+            <div class="column" id="four"></div>
+        </div>
+        <div class="row">
+            <div class="column" id="notes"></div>
+        </div>
+    </div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlType = urlParams.get('grouping');
+        const urlCompany = urlParams.get('company');
+        const url = 'https://gsheets.herokuapp.com/menu';
+        const mainTitle = document.getElementById("mainTitle");
+        const backButton = document.getElementById("backButton");
+        const backImg = document.getElementById("backImg");
+        const one = document.getElementById("one");
+        const two = document.getElementById("two");
+        const three = document.getElementById("three");
+        const four = document.getElementById("four");
+
+        function createNode(element) { return document.createElement(element); }
+        function append(parent, el) { return parent.appendChild(el); }
+
+        fetch(url,{mode: "cors"})
+        .then((resp) => resp.json()) // transform the data into json
+        .then(function(data) {
+            let jsonResponse = data.values; 
+            var arrayLength = jsonResponse.length; 
+            var count=0; // starting at row 0
+
+            // iterate through all of the rows of the google sheet
+            for (var i = 0; i < arrayLength; i++) {
+                let hr = createNode('hr');  // line break
+                hr.setAttribute('id','hr');
+                let containAll = createNode('div'); // container for everything
+                containAll.setAttribute('class', 'image');
+                let img = createNode('img'); // image
+                let containName = createNode('div'); // container for the name
+                containName.setAttribute('class', 'description');
+                let button = createNode('button');
+                let prices = createNode('p');
+                prices.setAttribute('class', 'prices');
+                let sizes = createNode('p');
+                sizes.setAttribute('class', 'sizes');
+                var a = createNode('a');
+                let name = createNode('p'); // name of the menu item
+                name.setAttribute('class', 'name');
+                let details = createNode('p'); 
+                details.setAttribute('class', 'details');
+
+                var descriptionText = jsonResponse[i][1];
+                var imgLink = jsonResponse[i][2];
+                var rowType = jsonResponse[i][3];
+                var detailsText = jsonResponse[i][4];
+                var rowCompany = jsonResponse[i][5];
+                var link = jsonResponse[i][6];
+                var pricesText = jsonResponse[i][7];
+                var sizesText = jsonResponse[i][8];
+                var titleText = jsonResponse[i][9];
+
+                //  STATE FOR FRONT OF MENU 
+                // ????? DO I NEED TO SPECIFY ONLY rowType = MENU ?????
+                //  IF url = ?grouping=menu&company=[valid] AND (rowType is either section or menu)
+                if (urlType=="menu" && rowCompany == urlCompany && (rowType == "menu" || rowType == "section") ) {
+                    // MENU IMAGE CONTAINER (rowType = menu)
+                    if (rowType=="menu") {       
+                        append(one, containAll);  // col 1 <- contain <- link <- name, image
+                        append(containAll,a);
+                        append(a,containName);
+                        append(a,img);
+                        append(containName, name);
+                        img.src = imgLink;
+                        name.innerText = descriptionText;
+                        a.setAttribute('href', link);
+                    } else if (rowType=="section") {
+                        // MENU BUTTONS ( rowType = not menu )
+                        append(one, containAll);
+                        containAll.setAttribute('class', 'button'); //override class for div
+                        append(containAll,button);
+                        append(button,a);
+                        a.innerText = descriptionText;
+                        a.setAttribute('href', link);
+                        a.setAttribute('class','menuButton')
+                        a.setAttribute('id',rowCompany + ":" + descriptionText);
+                    }
+                }
+                // SUB PAGES ()
+                // ????? DO I NEED TO SPECIFY ONLY rowType = SUBPAGE ?????
+                else if (rowType == urlType && rowCompany == urlCompany) {
+                    backButton.setAttribute("href","?grouping=menu&company="+urlCompany);
+                    backImg.src = "http://alexturney.com/imgBin/Back.png"
+                    if (titleText != "n/a") {
+                        mainTitle.innerText=titleText;
+                        mainTitle.setAttribute("style","margin: 60px 20px 10px 20px");
+                    }
+                    // SECTION OF MENU: NO IMAGES ON PAGE
+                    if ( imgLink == "n/a" ) {
+                        count += 1;
+                        if (count % 4 == 1) {
+                            append(one, containAll);
+                        } else if (count % 4 == 2) {
+                          append(two, containAll);
+                        } else if (count % 4 == 3) {
+                          append(three, containAll);
+                        } else {
+                          append(four, containAll);
+                        }
+                        append(containAll,name);
+                        append(containAll,details);
+                        append(containAll,sizes);
+                        append(containAll,prices);
+                        append(containAll,hr);
+                        name.innerText = descriptionText;
+                        details.innerText = detailsText;
+                        sizes.innerText = sizesText;
+                        prices.innerText = pricesText;
+                    // SECTION OF MENU: IMAGES ON PAGE
+                    } else {
+                        count += 1;
+                        if (count % 4 == 1) {
+                            append(one, containAll);
+                        } else if (count % 4 == 2) {
+                            append(two, containAll);
+                        } else if (count % 4 == 3) {
+                            append(three, containAll);
+                        } else {
+                            append(four, containAll);
+                        }
+                        append(containAll,a); 
+                        append(a,containName);
+                        append(containName, name);
+                        append(a,img);
+                        img.src = imgLink;
+                        name.innerText = descriptionText;
+                        if (pricesText != "n/a") {
+                            append(containName,prices);
+                            prices.innerText=pricesText;
+                        }
+                        if (sizesText != "n/a") {
+                            append(containName,sizes);
+                            sizes.innerText=sizesText;
+                        }
+                        if (link != "n/a") {
+                            a.setAttribute('href', link);
+                            let tapToLearn = createNode("p");
+                            append(a,tapToLearn);
+                            tapToLearn.innerText="tap to learn more.";
+                            tapToLearn.setAttribute('class','tapToLearn');
+                        }
+                    } // END IMAGE SUB PAGE
+                } // END SUB PAGE
+            } //END FOR LOOP
+            $('hr:last').remove();
+        }) // END DOING WORK ON JSON
+        .catch(function(error) {
+                console.log(error);
+        });
+        
+
+    </script>
+</body>
+</html>

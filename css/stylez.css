@@ -1,0 +1,21 @@
+@import 'https://fonts.googleapis.com/css?family=Montserrat';
+
+body {
+    background-color: black;
+    color:white;
+}
+#imageContainer {
+    width: 400px;
+    margin: 0 auto;
+}
+#ProductHeadline {
+    margin: 20px 0px;
+    font-family: 'Montserrat', sans-serif;
+}
+#logo {
+    width:200px;
+    position:fixed;
+    left:10px;
+    top:10px;
+    z-index:-1;
+}

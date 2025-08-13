@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Feature Timeline Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #view-select {
+      margin-bottom: 20px;
+      padding: 6px 10px;
+      font-size: 16px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f5f5f5;
+    }
+
+    td.label {
+      max-width: 100px;
+      word-wrap: break-word;
+      font-weight: bold;
+    }
+
+    .feature-card {
+      background: #e0f0ff;
+      border-radius: 6px;
+      padding: 6px;
+      margin: 4px 0;
+      text-align: left;
+    }
+
+    .feature-card .title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .feature-card .meta {
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Feature Timeline</h1>
+  <label for="view-select">View by: </label>
+  <select id="view-select">
+    <option value="monthly">Monthly</option>
+    <option value="quarterly">Quarterly</option>
+  </select>
+
+  <div id="timeline-container"></div>
+
+  <script>
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUKhg1wAuSiettSYKStK67mqcjsHxLpYRLIVvL4ZXHfbmyjq6w8LHsBarPeoDGlhK9Ob4mmoR8jyqJ/pub?gid=0&single=true&output=csv";
+
+    const parseCSV = (data) => {
+      const [headerLine, ...lines] = data.trim().split("\n");
+      const headers = headerLine.split(",").map(h => h.trim());
+
+      return lines.map(line => {
+        const values = [];
+        let inQuotes = false;
+        let value = '';
+
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"' && line[i + 1] === '"') {
+            value += '"';
+            i++;
+          } else if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === ',' && !inQuotes) {
+            values.push(value.trim());
+            value = '';
+          } else {
+            value += char;
+          }
+        }
+        values.push(value.trim());
+
+        return headers.reduce((acc, key, i) => {
+          acc[key] = values[i]?.replace(/^"|"$/g, "") || "";
+          return acc;
+        }, {});
+      });
+    };
+
+    const groupByPeriod = (data, viewType) => {
+      const grouped = {};
+      data.forEach(item => {
+        const date = new Date(item.Launch);
+        if (isNaN(date)) return;
+        const year = date.getFullYear();
+        const month = date.getMonth(); // 0-indexed
+
+        const period = viewType === 'monthly'
+          ? `${year}-${String(month + 1).padStart(2, "0")}`
+          : `Q${Math.floor(month / 3) + 1} ${year}`;
+
+        if (!grouped[period]) grouped[period] = [];
+        grouped[period].push(item);
+      });
+      return grouped;
+    };
+
+    const getDateRange = (data) => {
+      const dates = data.map(d => new Date(d.Launch)).filter(d => !isNaN(d));
+      const min = new Date(Math.min(...dates));
+      const max = new Date(Math.max(...dates));
+      return [min, max];
+    };
+
+    const generatePeriods = (min, max, viewType) => {
+      const periods = [];
+      if (viewType === 'monthly') {
+        let year = min.getFullYear();
+        let month = min.getMonth();
+        const endYear = max.getFullYear();
+        const endMonth = max.getMonth();
+
+        while (year < endYear || (year === endYear && month <= endMonth)) {
+          periods.push(`${year}-${String(month + 1).padStart(2, "0")}`);
+          month++;
+          if (month > 11) {
+            month = 0;
+            year++;
+          }
+        }
+      } else {
+        let y = min.getFullYear();
+        let q = Math.floor(min.getMonth() / 3) + 1;
+        const endY = max.getFullYear();
+        const endQ = Math.floor(max.getMonth() / 3) + 1;
+
+        while (y < endY || (y === endY && q <= endQ)) {
+          periods.push(`Q${q} ${y}`);
+          q++;
+          if (q > 4) {
+            q = 1;
+            y++;
+          }
+        }
+      }
+      return periods;
+    };
+
+    const renderTable = (data, viewType) => {
+      const [minDate, maxDate] = getDateRange(data);
+      const periods = generatePeriods(minDate, maxDate, viewType);
+      const grouped = groupByPeriod(data, viewType);
+
+      let html = '<table><thead><tr><th>Time Period</th>';
+      periods.forEach(p => html += `<th>${p}</th>`);
+      html += '</tr></thead><tbody>';
+
+      const owners = [...new Set(data.map(d => d.Owner))];
+
+      owners.forEach(owner => {
+        html += `<tr><td class="label">${owner}</td>`;
+        periods.forEach(p => {
+          const items = (grouped[p] || []).filter(item => item.Owner === owner);
+          const content = items.map(item => {
+            const link = item.Work?.startsWith("http") ? `<div class="meta"><a href="${item.Work}" target="_blank">Open File</a></div>` : '';
+            return `
+              <div class="feature-card">
+                <div class="title">${item.Feature}</div>
+                <div class="meta">Owner: ${item.Owner}</div>
+                <div class="meta">Priority: ${item.Priority}</div>
+                ${link}
+              </div>`;
+          }).join('');
+          html += `<td>${content}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('timeline-container').innerHTML = html;
+    };
+
+    fetch(sheetUrl)
+      .then(response => response.text())
+      .then(csvText => {
+        const data = parseCSV(csvText);
+        const dropdown = document.getElementById('view-select');
+        dropdown.addEventListener('change', () => renderTable(data, dropdown.value));
+        renderTable(data, dropdown.value);
+      })
+      .catch(error => {
+        console.error("Failed to load CSV data:", error);
+        document.getElementById('timeline-container').innerText = "Failed to load data.";
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-58905914-1');
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T4FHGCC');</script>
+    <!-- End Google Tag Manager -->
+    <title>Alex Turney</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="built by: alex turney">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/new.css">
+    <link rel="shortcut icon" href="/imgBin/favicon1.ico">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+</head>
+<body class="gradient">
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4FHGCC"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/sets.js"></script>
+    <button style="padding:6px 12px;margin:20px;background:navy;">
+        <a href="../ideas/" style="color:white;">Explore Ideas</a>
+    </button>
+    <div class="topFilters" style="margin: 20px;"> </div>
+    <div class="flexContainer">
+        <div class="ideaList" id="one"></div>
+        <div class="ideaList" id="two"></div>
+    </div>   
+    <script>
+        var url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSuFOd1-Jga9p0qBlAeBMdjEd6zjdLRxYgSaVdsHedU56V7ZBDoeqVdmSfnlNHzzHefCFeZMZExNGd8/pub?gid=1431608285&single=true&output=csv';
+        $.ajax({
+          url: url,
+          success: function (data) {
+            var newData = data.replace(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/g, ';');
+            $('.ideaList').html('');  
+            var arrayOfLines = newData.split("\n");
+            var arrayOfClassifications = [];
+            $.each(arrayOfLines, function (index, value) {
+                if (index!=0) {
+                    var line_array = value.split(";");
+                    if (line_array[0] == "Overall") {
+                        console.log(line_array);
+                    } else {
+
+                    }
+                    let line_html = "<div class='line_container '>";
+                    if (line_array[2] && line_array.length > 2) {
+                        var component_array = line_array[2].split("|"); 
+                        var image_array = line_array[3].split("|");
+                        // var classification = line_array[4];    
+
+                        var classification = line_array[4].replace(/"/g, "").split(",");
+                        line_html += '<div class="ideaText ';
+                        for (c in classification){
+                            var tempClass = classification[c].replace("\r","").trimStart();
+                            if (!arrayOfClassifications.includes(tempClass) && tempClass != "" && tempClass != null && tempClass != "\r") {
+                                arrayOfClassifications.push(tempClass);
+                            }  
+                            line_html += tempClass + " ";
+                        }
+                        line_html += '">';
+                    } else {
+                        line_html += '<div class="ideaText"> ';
+                    }
+
+                    // if (!arrayOfClassifications.includes(classification) && classification != "" && classification != null && classification != "\r") {
+                    //     arrayOfClassifications.push(classification);
+                    // }  
+                    // line_html += '<div class="ideaText ' + classification + '">';
+
+                    if (line_array[2]=='\r' || line_array[2]=='') {
+                        const baseURL = "https://google.com/search?q=";
+                        var url = `${baseURL} ${encodeURIComponent(text)}`;
+                        line_html += '<a href="' + url + '">' + line_array[0] + '</a></div></div></div>';
+                    } else if (line_array[2] && line_array.length > 2) {
+                        line_html += '<a href="' + line_array[1] + '">' + line_array[0] + ' </a>';                       
+                        for (let i = 0; i < component_array.length; i++) {
+                            if (i==0) {
+                                line_html += '<span class="open" data-num=' + i + '>&nbsp;|&nbsp;' + component_array[i].replace(/["']/g, "") + '</span>';
+                            } else {
+                                line_html += '<span class="open" data-num=' + i + '>&nbsp;|&nbsp;' + component_array[i].replace(/["']/g, "") + '</span>'; 
+                            } 
+                        }                        
+                        line_html += '</div>';
+                        // console.log("image_array --> " + image_array);
+                        for (let j = 0; j < image_array.length; j++) {
+                            if (j==0) {
+                                image_html = "<div class='imgContain'>" + '<img class="hide" src="' + image_array[j].replace(/["']/g, "") + '"' + 'data-num=' + j + '>';
+                            } else {
+                                image_html += '<img class="hide" src="' + image_array[j].replace(/["']/g, "") + '"' + 'data-num=' + j + '>';
+                            } 
+                        }
+                        line_html += image_html +'</div>';
+                    } else {
+                        const baseURL = "https://google.com/search?q=";
+                        var tempQuery = line_array[1];                        
+                        
+                        // Optionally, remove any leading or trailing double quotes if they are unwanted
+                        tempQuery = tempQuery.replace(/^"|"$/g, '');
+                        tempQuery = tempQuery.replace(/""+/g, '"');
+                        console.log(tempQuery);
+                        var newQuery = tempQuery.substring(0,tempQuery.length-2);
+                        console.log(newQuery);
+                                               
+                        var url = `${baseURL}${encodeURIComponent(newQuery)}`;
+                        console.log(url);
+                        line_html += '<a href="' + url + '">' + line_array[0] + '</a></div></div></div>';
+                        console.log(line_html);
+                    }
+                    line_html += '</div>';
+                    if (index % 2 == 1) {
+                    	$('#one').append(line_html); 
+                    } else {
+	                    $('#two').append(line_html);                    
+                    }
+                } 
+            });
+            for (var i = 0; i < arrayOfClassifications.length; i++ ) {
+                var temp = arrayOfClassifications[i];
+                if (temp != "" && temp != " " && temp != null && temp.length != 1){
+                    var tempButton= '<button class="tempValue">' + temp + '</button>';
+                    document.querySelector(".topFilters").innerHTML += tempButton;
+                }
+            }            
+            document.querySelectorAll('button').forEach((e) => {
+                e.addEventListener('click', () => {
+                    // console.log(e.innerHTML);
+                    change(e.innerHTML, "blue");                    
+                })
+            });
+            $(".ideaList .open").click(function() {
+                var temp = $(this).attr("data-num");                
+                var isHidden = $(this).parent().next().find("[data-num='"+temp+"']").hasClass("hide");
+                $(this).parent().next().find("img").removeClass("show");
+                $(this).parent().next().find("img").addClass("hide");
+                if (isHidden) {
+                    $(this).parent().next().find("[data-num='"+temp+"']").addClass("show");
+                    $(this).parent().next().find("[data-num='"+temp+"']").removeClass("hide");
+                } else {
+                    $(this).parent().next().find("[data-num='"+temp+"']").addClass("hide");
+                    $(this).parent().next().find("[data-num='"+temp+"']").removeClass("show");
+                }
+
+            });
+          },
+          error: function (err) {
+            console.log(err.status);
+          }
+        });
+    </script>
+</body>
+</html>

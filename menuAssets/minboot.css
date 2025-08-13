@@ -1,0 +1,223 @@
+.marquee {
+    position: relative;
+    overflow: hidden;
+    padding: 19px 0;
+    text-decoration: none;
+}
+
+a {
+  -webkit-transition: .3s;
+    -o-transition: .3s;
+  transition: .3s;
+}
+
+.flex {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+}
+
+.marquee .marquee_list {
+    -webkit-animation: ticker 30s infinite linear;
+    animation: ticker 30s infinite linear;
+}
+
+@-webkit-keyframes ticker {
+    100% {
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes ticker {
+    100% {
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+    }
+}
+
+.marquee .marquee_item img {
+    margin: auto 13px;
+    width: 10px;
+    height: 10px;
+}
+
+.flex {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-flex: 1;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+}
+.text-sm, .caps-font {
+    font-size: 1.388rem;
+    line-height: 1.722rem;
+}
+.caps-font {
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+}
+
+#header {
+    /* position: fixed; */
+    top: 0;
+    left: 0;
+    width: 100%;
+    position: relative;
+    z-index: 999;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    vertical-align: baseline;
+}
+
+.yellow-bg {
+    background-color: #EDFCF4; /* light blue */
+}
+
+body.splash {
+  background-image: url(splash.png);
+  background-size: cover;
+  background-position: center center;
+/*  background-color: #F0F0F0; /* light blue */*/
+  /*background-color: #3F6659; /* dark green */
+  /* color: #FFAB91; /* coral */
+  color: #3F6659; /* dark green */
+  font-family: "Helvetica Neue";
+  font-weight: bold;
+  font-size: 20px;
+}
+
+#splashContain {
+  visibility: hidden;
+}
+
+#splashContain.show {
+  visibility: visible;
+}
+
+.projectContainer {
+  width: 80%;
+  margin: 20px auto 40px;
+  background: none;
+}
+
+p.splashDescription {
+  margin: 0px;
+  padding: 0px;
+}
+
+.valueProp {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+#splashLogo {
+  margin: 20px auto 0px;
+  width: 30%;
+  float: right;
+  height: auto;
+}
+
+.sub {
+  border: 4px solid #3F6659;
+  color: #fff;
+  background: #3F6659;
+  padding: 5px 10px;
+  border-radius: 4px;
+  width: 100px;
+}
+
+label {
+  display: inline-block;
+  max-width: 100%;
+  margin: 30px 0px 5px 0px;
+}
+
+input {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-transform: none;
+  text-indent: 0px;
+  text-shadow: none;
+  display: inline-block;
+  text-align: start;
+  background-color: #FCFCFC;
+  cursor: text;
+  padding: 1px;
+  border-width: 2px;
+  border-style: inset;
+}
+
+.splashMock {
+  width:100%;
+  margin: 20px 80px 40px 0px;
+}
+
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+  position: relative;
+}
+.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12 {
+  float: left;
+}
+@media (min-width: 800px) {
+  .col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
+    float: left;
+  }
+  .col-sm-12 {
+    width: 100%;
+  }
+  .col-sm-11 {
+    width: 91.66666667%;
+  }
+  .col-sm-10 {
+    width: 83.33333333%;
+  }
+  .col-sm-9 {
+    width: 75%;
+  }
+  .col-sm-8 {
+    width: 66.66666667%;
+  }
+  .col-sm-7 {
+    width: 58.33333333%;
+  }
+  .col-sm-6 {
+    width: 50%;
+  }
+  .col-sm-5 {
+    width: 41.66666667%;
+  }
+  .col-sm-4 {
+    width: 33.33333333%;
+  }
+  .col-sm-3 {
+    width: 25%;
+  }
+  .col-sm-2 {
+    width: 16.66666667%;
+  }
+  .col-sm-1 {
+    width: 8.33333333%;
+  }
+}
+
+@media (max-width: 800px) {
+  .splashMock {
+    width:100%;
+    margin: 20px 0px 20px;
+  }
+}

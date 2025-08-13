@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css?family=Heebo:700|Open+Sans:800');
+
+a {
+  box-sizing: border-box;
+  text-decoration: none;
+  color: white;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#mainTitle {
+  font-family: 'Heebo', sans-serif;
+  font-weight: bold;
+  font-size: 1.5em;
+  line-height: 1.1em;
+}
+
+.details {
+  font-size: .6em;
+  margin:  4px 10px 12px 10px;
+  padding:  0px 10px 0px 10px;
+  line-height: 1em;
+}
+
+hr {
+  border: 1.5px dashed #A9A9A9;
+}
+
+.sizes {
+  font-size: .6em;
+  margin:  0px 6px 0px 30px;
+  padding: 0px 6px 0px 30px;
+  /*margin:  6px 20px 6px 6px;
+  padding: 6px 20px 6px 6px;
+  text-align: right;*/
+}
+
+.prices {
+  font-size: .6em;
+  margin:  0px 6px 10px 30px;
+  padding: 0px 6px 10px 30px;
+  /*margin:  6px 20px 6px 6px;
+  padding: 6px 20px 6px 6px;
+  text-align: right;*/
+}
+
+body {
+  margin: 0;
+  font-family: "Helvetica Neue";
+  font-size: 30px;
+  line-height: 36px;
+}
+
+img {
+  width: 100%;
+  height: auto;
+  min-height: width;
+  vertical-align: middle;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Create four equal columns that sits next to each other */
+.column {
+  flex: 25%;
+  max-width: 25%;
+}
+
+.column img {
+  margin-top: 0px;
+  vertical-align: middle;
+}
+
+/* Responsive layout - makes a two column-layout instead of four columns */
+@media screen and (max-width: 800px) {
+  .column {
+    flex: 50%;
+    max-width: 50%;
+  }
+  body {
+    font-size: 30px;
+    line-height: 36px;
+  }
+}
+
+/* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .column {
+    flex: 100%;
+    max-width: 100%;
+  }
+  body {
+    font-size: 30px;
+    line-height: 36px;
+  }
+}
+
+/* this is for text overlay */
+.image {
+  position: relative; /* this is for text overlay */
+  /* left: 0;  this is for text overlay */
+  /* top: 0;  this is for text overlay */
+}
+
+p.name {
+  padding: 10px;
+  vertical-align: middle;
+  text-align: left;
+  margin: 0px 10px 0px 10px;
+  font-weight: bold;
+}
+
+/* this is for text overlay */
+.description {
+  z-index: 100;
+  background-color: rgba(20,20,20,0.3);
+  position: absolute;
+  color: white;
+  font-weight: bold;
+  bottom: 15%;
+  width: 100%;
+  height: auto;
+}
+
+.backButton {
+  position: fixed;
+  z-index: 200;
+  left: 16px;
+  top: 0px;
+  width: 20px;
+}
+
+/* this is for text overlay */
+.tapToLearn {
+  z-index: 100;
+  position: absolute;
+  font-size: 10px;
+  color: grey;
+  padding: 0px 0px 6px 0px;
+  margin: 0px;
+  height: auto;
+  text-align: center;
+  width: 100%;
+  bottom: 0px;
+}
+
+button {
+  background-color: black;
+  border: none;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
+button:hover,
+button.hover {
+  background-color: #525B56;
+  padding: 10px;
+  font-size: 16px;
+}
+button:active,
+button.active {
+  background-color: #525B56;
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* div that holds the button */
+.button {
+  width: 240px;
+  margin: 10px auto;
+}

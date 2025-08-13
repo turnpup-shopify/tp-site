@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    </head>
+    <body>
+	<iframe src="https://script.google.com/macros/s/AKfycbzh3D-b_uVFsl3aNZCGHn4DzsevxjJdKwu0RPWIshjPs5RAfnMircQQm0sv0K451zYQNw/exec"
+			style="width: 100%; height: 1000px;"
+			></iframe>	
+    <div id="image-container"> </div>
+		    <p id="debug"> </p>
+		<style>
+			img {
+				width: 100%;
+				height: auto;
+			}
+		</style>
+	
+
+    <script>
+        // MAIN SCRIPT THAT RUNS ON PAGE LOAD
+        var url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQctfCI2_KawKznbxbMl1hZnoMqYXuls8ChL_jT5lY8_hQ_ZhgIDy9V-mQeR7ngIS6_r3Nixz8uLVTm/pub?gid=0&single=true&output=tsv';
+        $.ajax({
+          url: url,
+          crossDomain: true,
+          success: function (data) {
+           createIdeaList(data);
+          },
+          error: function (err) {
+            console.log(err.status);
+          } 
+        });
+    </script>
+    <script>
+         function createIdeaList(data) {
+            console.log(data);
+            var arrayOfLines = data.split("\n");
+            $.each(arrayOfLines, function (index, value) {
+                var insertThis = formatLine(arrayOfLines, index, value);
+                if (index % 2 == 1) {
+                    $('#image-container').append(insertThis); 
+                } else {
+                    $('#timage-containerwo').append(insertThis);                    
+                }
+            });
+        }
+    </script>
+    <script>
+    function formatLine(arrayOfLines, index, value) {
+        var line_html = "";
+        if (index!=0) {         
+            var line_array = value.split("\t");
+            line_html = "<div class='line_container'>";
+            if(line_array[5]=='\r' || line_array[5]=='') {
+                line_html += '<div class="ideaText"><a href="' + " " + '">' + "[ NEEDS IMAGE ]" + ' </a>';
+            } else {
+                var testImage = "https://lh3.googleusercontent.com/drive-viewer/AKGpihZUglwWKCsgX8twkpwewUWVcJSywnfO3OTMDGEjns_UL_kSLSI3mcl7Wo6G_m9foFoU1FDr635CM6aYqk-RemBLpLwpT5JmZaI=s1600-rw-v1";
+                // var testImage = line_array[5];
+                line_html += '<div class="ideaText"><img src="' + testImage + '">';
+                console.log("_______________");
+                console.log(line_array[0]);
+                console.log(line_array[1]);
+                console.log(line_array[2]);       
+                var image_html = " ";
+                line_html += image_html +'</div>';                     
+            }
+            line_html += '</div>';         
+        }
+        return line_html;
+    }
+    </script>
+    <!-- <script>
+        // Function to fetch data from Google Sheet
+        async function fetchDataFromGoogleSheet(sheetId) {
+        const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:Z20`);
+        const data = await response.json();
+        return data.values; // Assuming your sheet has two columns: one for image URLs and one for corresponding names
+        }
+
+        // Function to display images on the webpage
+        function displayImages(imagesData) {
+            const debugContainer = document.getElementById('debug');
+            debugContainer.innerHTML = imagesData;
+            const container = document.getElementById('image-container');
+            imagesData.forEach(([imageUrl, imageName]) => {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = imageName;
+            container.appendChild(img);
+        });
+        }
+
+        // Usage: Call fetchDataFromGoogleSheet with your Google Sheet ID
+        const sheetId = '1jmvCsg2A5IilsaU4BOFNGxTK3zsvsll3acsmRms_eFo';
+        fetchDataFromGoogleSheet(sheetId)
+        .then(data => displayImages(data))
+        .catch(error => console.error('Error fetching data:', error));
+    </script> -->
+  </body>
+</html>
+

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="alexturney">
+    <title>Alex Turney</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css">
+    <link rel="shortcut icon" href="../../imgBin/favicon1.ico">
+    <script src="../../js/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../css/subpage.css">
+    <link rel="stylesheet" type="text/css" href="../../css/new.css">
+</head>
+<style>
+    
+        .contentContainer {
+            width: 100%;
+            height: 100%;
+            z-index: 90;
+            position: fixed;
+            background-color: rgba(0,0,0,0.9);
+            top: 0;
+            left: 0;
+            display: none;
+        }
+
+        .content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background-color: #e8eae6;
+            box-sizing: border-box;
+            padding: 10px;
+            z-index: 100;
+            /*display: none;*/
+            /*to hide popup initially*/
+        }
+
+        .content img {
+            display: block;
+            width: 100%;
+            object-fit: cover;
+            max-height:  90vH;
+        }
+          
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            background-color: black;
+            color: white;
+            border-radius: 50%;
+            padding: 4px;
+        }
+
+</style>
+<body class="digital_art_container"> 
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script>
+    <script src="../../js/bootstrap.js"></script>
+    <script src="../../js/sets.js"></script>
+    <div class="desc">
+        <p> DIGITAL ART EXPERIMENTS <br> <span style="font-size: 1.5vW">ORIGINAL ART - CLICK TO SEE FULL-SIZED IMAGE OF WORK.</span></p>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <img src="AJ1RedV3Ca.png" width="100%">
+        </div>
+
+
+  
+        <!-- div containing the popup -->
+        <div class="contentContainer">
+            <div class="content">
+                <div class="close-btn">
+                    ×
+                </div>     
+               <img height="100%" width="auto">
+            </div>
+        </div>
+
+
+        <div class="col-sm-4">
+            <img src="AJ1RedV2.png" width="100%">
+        </div>
+        <div class="col-sm-4">
+            <img src="Moon.png" width="100%">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <img src="surf_board_posters_IG.png" width="100%">
+        </div>
+        <div class="col-sm-4">
+            <img src="warhol_block_art_in_living.png" width="100%">
+        </div>
+        <div class="col-sm-4">
+            <img src="abstract_poster.png" width="100%">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <img src="middle.png" width="100%">
+        </div>
+        <div class="col-sm-4">
+            <img src="colored.png" width="100%">
+        </div>
+        <div class="col-sm-4">
+            <img src="flowers.png" width="100%">
+        </div>
+    </div>    
+    <script>
+    $(document).ready(function() {
+        $('.single-item').slick({
+            arrows: true,
+        });
+    });
+    $("#renderings_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#renderings").offset().top - 50
+        }, "slow");
+    });
+    $("#sketches_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#sketches").offset().top
+        }, "slow");
+    });
+     $("#innovations_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#innovations").offset().top
+        }, "slow");
+    });
+
+    $('img').on('click', function() {
+        if ($(".contentContainer").is(":visible")) {
+            return;
+        } else {
+            var text = $(this).attr('src');
+            $(".contentContainer").toggle();
+            $(".content img").attr("src",text);
+        }
+    });
+
+    $('.contentContainer').on('click', function(e) {
+        if (e.target == this) { // clicked background
+            $(".contentContainer").toggle();
+        }
+        else if ($(e.target).hasClass('close-btn')) {
+            $(".contentContainer").toggle();
+        } else {
+            console.log(e.target);
+            return;
+        }
+    });
+
+    </script>
+</body>
+
+</html>

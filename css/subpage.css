@@ -1,0 +1,68 @@
+/* CSS Document */
+@charset "UTF-8";
+@font-face { font-family: 'Lobster'; src: url('LobsterTwo-Bold.otf'); }
+@font-face { font-family: 'Nexa_Light'; src: url('../Type/Nexa Light.otf'); }
+@font-face { font-family: 'Liberation'; src: url('LiberationSans-Regular.ttf'); }
+@font-face { font-family: 'Liberation Italic'; src: url('LiberationSans-Italic.ttf'); }
+@font-face { font-family: 'ADAM'; src: url('../Type/ADAM.CG PRO.otf'); }
+@import url(http://fonts.googleapis.com/css?family=Lustria); /* font-family: 'Lustria', serif; */
+@import url(http://fonts.googleapis.com/css?family=Lato:400,300italic); /* font-family: 'Lato', sans-serif; */
+/*body*/
+body {
+    color:black;
+    background-color:#FFF;
+    font-family: 'Roboto', sans-serif;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+}
+h1 {
+    font-size: 24px;
+}
+img {
+    width: 100%;
+}
+a {
+    text-decoration: none;
+    color: white;
+    font-size: 48px;
+    padding-left: 20px;
+}
+.slick-prev:before, .slick-next:before {
+    color:red !important;
+}
+.single-item {
+  width: 100%;
+  margin: 0 auto;
+}
+.single-item img {
+  width: 100%;
+  margin: 0 auto;
+}
+.projectNav {
+    position:fixed;
+    top:100px;
+    left:40px;
+    text-align:left;
+    text-decoration:none;
+    color:black;
+}
+.projectNav a {
+    text-align:left;
+    font-size:12px;
+    text-decoration:none;
+    color:black;
+    line-height: 13px;
+    padding:0px;
+    margin:4px 0px;
+}
+.projectContainer {
+    width: 60%;
+    margin: 20px auto;
+}
+#symmetricshelf {
+    background-color: rgb(185, 228, 255);
+}
+#threedshoes {
+    background-color: white;
+}

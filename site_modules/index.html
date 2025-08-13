@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-58905914-1');
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T4FHGCC');</script>
+    <!-- End Google Tag Manager -->
+    <title>Alex Turney</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="built by: alex turney">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/new.css">
+    <link rel="shortcut icon" href="/imgBin/favicon1.ico">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+</head>
+<body class="gradient">
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4FHGCC"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/sets.js"></script>
+    <button style="padding:6px 12px;margin:20px;background:navy;">
+        <a href="../queries/" style="color:white;">Explore Queries</a>
+    </button>
+    <select id="dropdown" style="margin: 20px;">
+        <option value="part1">Marketing</option>
+        <option value="part2">Business</option>
+        <option value="part3">Strategy</option>
+        <option value="part4">Performance Marketing</option>
+        <option value="part5">Case Study</option>
+        <option value="part6">Customers</option>
+        <option value="part7">Recent How they Improved</option>
+        <option value="part8">Creative</option>
+        <option value="part9">Authenticated</option>
+        <option value="part10">Learn</option>
+        <option value="part11">Launched</option>
+        <option value="part12">Digital / Website</option>
+        <option value="part13">Gen Z</option>
+    </select>
+    <div class="topFilters" style="margin: 20px;"> </div>
+    <div class="flexContainer">
+        <div class="ideaList" id="one"></div>
+        <div class="ideaList" id="two"></div>
+    </div>
+    <script>
+        var url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSASkg3H-_Rs8ZRcelOjNe2qP-eIsqIfHAZUKOLPBb3oGNnvOnLxK3eOU-8Wkx9-OjXWLTWvs5iyg4S/pub?gid=0&single=true&output=csv';
+        $.ajax({
+          url: url,
+          success: function (data) {
+            var newData = data.replace(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/g, ';');
+            $('.ideaList').html(''); 
+            var arrayOfLines = newData.split("\n");
+            var arrayOfClassifications = [];
+            // console.log(arrayOfLines);         
+            $.each(arrayOfLines, function (index, value) {
+                if (index!=0) {
+                    var line_array = value.split(";");
+                    if (line_array[0] == "Overall") {
+                        console.log(line_array);
+                    } else {
+
+                    }
+                    let line_html = "<div class='line_container '>";
+                    var component_array = line_array[2].split("|"); 
+                    var image_array = line_array[3].split("|");
+                    // var classification = line_array[4];    
+
+                    var classification = line_array[4].replace(/"/g, "").split(",");
+                    line_html += '<div class="ideaText ';
+                    for (c in classification){
+                        var tempClass = classification[c].replace("\r","").trimStart();
+                        if (!arrayOfClassifications.includes(tempClass) && tempClass != "" && tempClass != null && tempClass != "\r") {
+                            arrayOfClassifications.push(tempClass);
+                        }  
+                        line_html += tempClass + " ";
+                    }
+                    line_html += '">';
+
+                    // if (!arrayOfClassifications.includes(classification) && classification != "" && classification != null && classification != "\r") {
+                    //     arrayOfClassifications.push(classification);
+                    // }  
+                    // line_html += '<div class="ideaText ' + classification + '">';
+
+                    if(line_array[2]=='\r' || line_array[2]=='') {
+                        line_html += '<a href="' + line_array[1] + '">' + line_array[0] + '</a></div></div>';
+                    } else {
+                        line_html += '<a href="' + line_array[1] + '">' + line_array[0] + ' </a>';                       
+                        for (let i = 0; i < component_array.length; i++) {
+                            if (i==0) {
+                                line_html += '<span class="open" data-num=' + i + '>&nbsp;|&nbsp;' + component_array[i].replace(/["']/g, "") + '</span>';
+                            } else {
+                                line_html += '<span class="open" data-num=' + i + '>&nbsp;|&nbsp;' + component_array[i].replace(/["']/g, "") + '</span>'; 
+                            } 
+                        }                        
+                        line_html += '</div>';
+                        // console.log("image_array --> " + image_array);
+                        for (let j = 0; j < image_array.length; j++) {
+                            if (j==0) {
+                                image_html = "<div class='imgContain'>" + '<img class="hide" src="' + image_array[j].replace(/["']/g, "") + '"' + 'data-num=' + j + '>';
+                            } else {
+                                image_html += '<img class="hide" src="' + image_array[j].replace(/["']/g, "") + '"' + 'data-num=' + j + '>';
+                            } 
+                        }
+                        line_html += image_html +'</div>';
+                    }
+                    line_html += '</div>';
+                    if (index % 2 == 1) {
+                    	$('#one').append(line_html); 
+                    } else {
+	                    $('#one').append(line_html);                    
+                    }
+                } 
+            });
+            for (var i = 0; i < arrayOfClassifications.length; i++ ) {
+                var temp = arrayOfClassifications[i];
+                if (temp != "" && temp != " " && temp != null && temp.length != 1){
+                    var tempButton= '<button class="tempValue">' + temp + '</button>';
+                    document.querySelector(".topFilters").innerHTML += tempButton;
+                }
+            }
+            runIt();
+            document.querySelectorAll('button').forEach((e) => {
+                e.addEventListener('click', () => {
+                    // console.log(e.innerHTML);
+                    change(e.innerHTML, "blue");                    
+                })
+            });
+            $(".ideaList .open").click(function() {
+                var temp = $(this).attr("data-num");                
+                var isHidden = $(this).parent().next().find("[data-num='"+temp+"']").hasClass("hide");
+                $(this).parent().next().find("img").removeClass("show");
+                $(this).parent().next().find("img").addClass("hide");
+                if (isHidden) {
+                    $(this).parent().next().find("[data-num='"+temp+"']").addClass("show");
+                    $(this).parent().next().find("[data-num='"+temp+"']").removeClass("hide");
+                } else {
+                    $(this).parent().next().find("[data-num='"+temp+"']").addClass("hide");
+                    $(this).parent().next().find("[data-num='"+temp+"']").removeClass("show");
+                }
+
+            });
+          },
+          error: function (err) {
+            console.log(err.status);
+          }
+        });
+    </script>
+    <script>
+        function change(tempClass, tempColor){
+            document.querySelectorAll('.ideaText').forEach((te) => {
+                te.parentElement.style.display = "none";
+                te.parentElement.style.marginBottom = "0px";
+                te.style.background = "#222";
+            })
+            var tc = '.' + tempClass;
+            console.log(tc);
+            document.querySelectorAll('.'+tempClass).forEach((ee) => {                
+                ee.parentElement.style.display = "inline-block";
+                ee.parentElement.style.marginBottom = "6px";
+                ee.style.background = tempColor;
+            })
+        }
+    </script>
+
+    <script>
+        // JavaScript to Intercept Button Click and Navigate to New URL
+        function runIt(){
+            var allAnchors = document.querySelectorAll(".ideaText a");
+            for (let i = 0; i < allAnchors.length; i++) {
+                console.log(allAnchors[i].innerText);
+                allAnchors[i].addEventListener("click", function(event) {
+                    // Prevent any default behavior (if the button is in a form, for example)
+                    event.preventDefault();
+                                    
+
+                    // Create a base URL
+                    const baseURL = "https://google.com/search?q=";
+
+                    let selectedPart = document.getElementById("dropdown").value;
+                    console.log(`selectedPart ${selectedPart}`);
+
+                    var theValues = {};
+                    // theValues["part1"] = ` "marketing" after:`;
+                    theValues["part1"] = ` "marketing"`;
+                    theValues["part2"] = ` "business"`;
+                    theValues["part3"] = ` ("strategy" OR "strategies" OR "tactics")`;
+                    theValues["part4"] = ` "how" "increased"`;
+                    theValues["part5"] = ` "case" OR "case-study"`;
+                    theValues["part6"] = ` "how" ("customers")`;
+                    theValues["part7"] = ` "how" ("increased" or "grew" or "improved")`;
+                    theValues["part8"] = ` ("clever" OR "creative" OR "strategy" OR "tactic" OR "surprising")`;
+                    theValues["part9"] = ` ("VP of" OR "Director" OR "Head" OR "founder" ) "how" -job -linkedin`;
+                    theValues["part10"] = ` "what" "learn from"`;
+                    theValues["part11"] = ` ("Launched" OR "Released" OR "Announced")`;
+                    theValues["part12"] = ` ("digital" OR "website")`;
+                    theValues["part13"] = ` ("gen z" OR "gen-z")`;
+                
+                    var thisIsIt = theValues[selectedPart];
+
+                    // Add query parameters or additional path segments
+                    const queryParams = thisIsIt;
+                    const company = event.target.innerText;
+
+                    if (company == "Overall"){
+                        // Step 1: Select all anchor tags and map their inner text to an array
+                        // Step 1: Select all .ideaText elements, filter by display block
+                        const anchorTexts = Array.from(document.querySelectorAll('.ideaText'))
+                            .filter(ideaText => getComputedStyle(ideaText).display === 'block') // Only keep .ideaText elements with display: block
+                            .flatMap(ideaText => // Use flatMap to extract anchor texts within each .ideaText
+                                Array.from(ideaText.querySelectorAll('a')) // Select all anchor tags within each .ideaText
+                                    .map(link => link.textContent.trim()) // Extract inner text of each anchor
+                                    .filter(text => text.length > 0) // Filter out empty texts
+                                    .filter(text => text != "Overall")
+                            );
+
+                        // Log the array of anchor text content
+                        console.log(anchorTexts);
+
+                        // Step 2: URL-encode and join with " OR "
+                        var query = anchorTexts
+                            .map(text => `"${encodeURIComponent(text)}"`) // Wrap in quotes and encode
+                            .join(" OR ");
+                        
+                        query += ") " + queryParams
+
+                        // Get today's date
+                        const new_today = new Date();
+
+                        // Subtract one day to get yesterday
+                        new_today.setDate(new_today.getDate() - 5);
+
+                        // Format the date as YYYY-MM-DD
+                        const new_formattedDate = `${new_today.getFullYear()}-${new_today.getMonth() + 1}-${new_today.getDate()}`;
+
+                        console.log(new_formattedDate);
+
+                        newURL += `${new_formattedDate}`;
+
+                        // Step 3: Construct the Google search URL
+                        var searchUrl = `https://www.google.com/search?q=(${query} after:`;
+                        searchUrl += `${new_formattedDate}`;
+
+                        // Log or open the URL
+                        // console.log(searchUrl);
+                        // window.open(searchUrl, '_blank');
+                        window.location.href = searchUrl;
+                        // window.location.href = event.target.href;
+                    } else {
+                
+                        // Construct the full URL
+                        var newURL = `${baseURL}"${company}"${queryParams}`;
+
+                        if (newURL.includes("after")) {
+                            const today = new Date();
+                            const formattedDate = `${today.getFullYear()}-${today.getMonth() + 1}-$ - 5}`;
+                            newURL += `${formattedDate}`;
+                        }
+
+                        // Navigate to the new URL
+                        window.location.href = newURL;
+
+                    }
+                });
+                // console.log(allAnchors[i].href);  // Prints each anchor's href attribute
+            }
+        }
+        
+    </script>
+</body>
+</html>

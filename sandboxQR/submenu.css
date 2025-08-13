@@ -1,0 +1,304 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700;1,900&display=swap');
+
+body {
+  font-size: 16px;
+  font-family: 'Helvetica Neue', sans-serif;
+  margin: 0;
+}
+
+#topTitle {
+  font-weight: bold;
+  font-size: 24px;
+  text-decoration: underline;
+  margin: 40px 24px 20px;
+}
+
+.containAll:last-of-type {
+  margin-bottom: 20px;
+}
+
+.menuItem {
+  margin: 24px auto 0px;
+  background-color: #FFFFFF;
+  width: calc( 100% - 48px );;
+  height: auto;
+  border-radius: 8px;
+  position:relative;
+  color: #000;
+}
+
+.textContainer:after {
+  content: ".";
+  visibility: hidden;
+  display: block;
+  height: 0;
+  clear: both;
+}
+
+.textContainer {
+  font-size: 18px;
+  padding: 12px 12px;
+  position: relative;
+}
+
+.topDiv {
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.topDivExpanded {
+    height: 100vH;
+}
+
+.bottomDiv {
+  padding: 0px;
+}
+
+p.name {
+  float: left;
+  font-weight: 600;
+  padding-right: 20px;
+  max-width: 78%;
+  height: 100%;
+}
+
+.prices {
+  float: left;
+  text-align: right;
+}
+
+.expandArrow {
+  content: url("expandArrow.png");
+  width: 14px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.expandArrowContainer {
+  float: right;
+  text-align: right;
+}
+
+
+.ingredients {
+  vertical-align: middle;
+  text-align: left;
+  margin: 10px 0px 0px 0px;
+  /*width: 70%;*/
+}
+
+p.ingredientDisclaimer {
+  margin: 4px 0px 0px 12px;
+}
+
+.disclaimer {
+  font-size: 14px;
+  margin: 10px 24px 0px 24px;
+}
+
+.sizes {
+  margin: 10px 0px 0px 0px;
+  /*width: 70%;*/
+}
+
+.details {
+  font-size: 14px;
+  margin:  10px 0px 0px 0px;
+}
+
+/* this is for text overlay */
+.tapToLearn {
+  margin: 10px 0px 0px 0px;
+  text-align: right;
+  border-radius: 4px;
+  border: 1px solid black;
+  display: inline-block;
+  padding: 6px;
+  z-index: 9999;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.expandableSection {
+  overflow: hidden;
+  transition: all .3s ease;
+  display: none;
+  color: #777;
+}
+
+.carousel {
+  /* line them up horizontally */
+  display: flex;
+  height: 150px;
+  border-radius: 0px;
+  margin: 14px 0px 0px 0px;
+  position: relative;
+
+  /* allow for scrolling */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+
+  /* make it smooth on iOS */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.carouselLarge {
+  /* line them up horizontally */
+  display: flex;
+  height: 35vh;
+  border-radius: 0px;
+  margin: 14px 0px 0px 0px;
+  position: relative;
+
+  /* allow for scrolling */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+
+  /* make it smooth on iOS */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.clearDiv {
+  clear: both;
+}
+
+.innerCarousel, .mainMenuInnerCarousel {
+  /* make sure the width is honored */
+  margin-left: 12px;
+  margin-right: 0px;
+  width: 150px;
+  /*width: calc(100% - 48px);*/
+  height: auto;
+  border-radius: 8px;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  scroll-snap-stop: always;
+  scroll-snap-align: center;
+  flex-shrink: 0;
+
+  transform-origin: center center;
+  transform: scale(1);
+  transition: transform 0.5s;
+}
+
+.innerCarouselLarge, .mainMenuInnerCarouselLarge {
+  width: calc(100% - 48px);
+    /* make sure the width is honored */
+  margin-left: 12px;
+  margin-right: 0px;
+  /*width: calc(100% - 48px);*/
+  height: auto;
+  border-radius: 8px;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  scroll-snap-stop: always;
+  scroll-snap-align: center;
+  flex-shrink: 0;
+
+  transform-origin: center center;
+  transform: scale(1);
+  transition: transform 0.5s;
+}
+
+.innerCarousel:first-child, .mainMenuInnerCarousel:first-child {
+  /* make sure the width is honored */
+  margin-left: 24px;
+  margin-right: 0px;
+}
+
+.innerCarouselLarge:first-child, .mainMenuInnerCarouselLarge:first-child {
+  margin-left: 24px;
+  margin-right: 0px;
+}
+
+.innerCarousel:last-of-type, .mainMenuInnerCarousel:last-of-type {
+  /* make sure the width is honored */
+  margin-left: 12px;
+  margin-right: 24px;
+}
+
+.innerCarouselLarge:last-of-type, .mainMenuInnerCarouselLarge:last-of-type {
+  /* make sure the width is honored */
+  margin-left: 12px;
+  margin-right: 24px;
+}
+
+.mainMenuSingleImage {
+  /* make sure the width is honored */
+  margin-left: 24px;
+  margin-right: 24px;
+  width: calc(100% - 48px);
+  height: auto;
+  border-radius: 10px;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  scroll-snap-stop: always;
+  scroll-snap-align: center;
+  flex-shrink: 0;
+
+  transform-origin: center center;
+  transform: scale(1);
+  transition: transform 0.5s;
+}
+
+.mainCarousel {
+  /* line them up horizontally */
+  display: flex;
+  height: 150px;
+  border-radius: 0px;
+  margin: 24px 0px 0px 0px;
+  position: relative;
+
+  /* allow for scrolling */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+
+  /* make it smooth on iOS */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.mainCarouselLarge {
+  /* line them up horizontally */
+  display: flex;
+  height: 35vh;
+  border-radius: 0px;
+  margin: 24px 0px 0px 0px;
+  position: relative;
+
+  /* allow for scrolling */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+
+  /* make it smooth on iOS */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.singleImage {
+  /* make sure the width is honored */
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  scroll-snap-stop: always;
+  scroll-snap-align: center;
+  flex-shrink: 0;
+
+  transform-origin: center center;
+  transform: scale(1);
+  transition: transform 0.5s;
+}

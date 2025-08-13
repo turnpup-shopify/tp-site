@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/alexturney.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Stats Practuce</title>
+<style>
+	p {
+		font-size: 11px;
+	}
+	#l {
+		width: 300px;
+		float: left;
+		display: block;
+	}
+	#r {
+		width: 700px;
+		float: left;
+		display: block;
+	}
+</style>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+
+<body>
+<h1 id="t"> </h1>
+<div id="l">
+<select id="Platform" onchange="works()">
+  <option value="Facebook">Facebook</option>
+  <option value="Android">Android</option>
+  <option value="Twitter" selected>Twitter</option>
+  <option value="Flickr">Flickr</option>
+</select>
+<p></p>
+</div>
+<div width="700px" float="right" id="r" display="inline-block">
+
+</div>
+<script>  
+	window.onLoad = works();
+	
+	function works() {
+		document.getElementById("t").innerHTML = $("#Platform").val() + "'s social media usage for NYC";
+		var currentValue = $("#Platform").val();
+		stats(currentValue);
+	}
+
+	function stats (currentValue) {
+		
+		var selected = currentValue;
+		d3.select("svg")
+       		.remove();
+		d3.csv("NYC_Social_Media_Usage.csv", function(error, data) { 
+			var numberOfData =400;
+			data.forEach(function (d) {
+				d.Agency = d.Agency;
+				d.Platform = d.Platform;
+				d.Activity = +d.Activity;
+			});	
+			var platform = selected;
+			var tempnum = data.splice(0, numberOfData);
+			var num = [];
+			tempnum.forEach(function (d, i) { 
+				if (d.Platform == platform) {
+					num.push(d);	
+				}	
+			});	
+			numberOfData = num.length;
+			var canvHeight = (numberOfData * 15 + 40);
+			d3.select("#l").selectAll("p").remove();
+			num.forEach(function (d) {
+				d3.select("#l").append("p").text("Agency "+d.Agency+" uses Platform:  "+d.Platform + "   " + d.Activity);
+			});
+			
+			var maxy = d3.max(num, function(d) { return d.Activity; });
+			console.log(maxy);
+			
+			var canvas = d3.select("#r")
+				.append("svg")
+				.attr("width", 850)
+				.attr("height", canvHeight)
+				.append("g") //everything contained inside a g tag so transformationg can occur
+				.attr("transform", "translate(20, 0)")
+				
+			var widthScale = d3.scale.linear() 
+				.domain([0, maxy])
+				.range([0, 500])
+				
+			var axis = d3.svg.axis()
+				.ticks(4)
+				.scale(widthScale);
+			
+			var color = d3.scale.linear() 
+				.domain([0, maxy])
+				.range(["red", "blue"])
+			
+				
+			var bars = canvas.selectAll("rect")
+				.data(num)
+				.enter()
+					.append("rect")
+					.attr("width", function(d) { return widthScale(d.Activity) })
+					.attr("height",10)
+					.attr("fill", function(d) { return color(d.Activity) })
+					.attr("y", function(d, i) { return i * 15}) ;
+					
+			var text = canvas.selectAll("text")
+                        .data(num)
+                        .enter()
+                        .append("text");
+						
+			var textLabels = text
+                 .attr("x", widthScale(maxy) + 5)
+                 .attr("y", function(d, i) { return i * 15 + 8; })
+                 .text( function (d) { return d.Agency; })
+                 .attr("font-family", "sans-serif")
+                 .attr("font-size", "10px")
+                 .attr("fill", "black");
+			
+			canvas.append("g")
+				.attr("transform", "translate(0, "+ (canvHeight - 30) + ")")
+				.call(axis);
+			
+			
+			/*twenty.forEach(function (d) {
+				var r = Math.random() * 255;
+				var g = Math.random() * 255;
+				var b = Math.random() * 255;
+				var circle = canvas.append("circle")
+					.attr("cx",100 + Math.random()*200)
+					.attr("cy",100 + Math.random()*200)
+					.attr("r", d.Activity/10)
+					.attr("fill", d3.rgb(r, g, b));
+			});*/	
+		
+		});
+	}
+	
+	
+</script>
+</body>
+</html>

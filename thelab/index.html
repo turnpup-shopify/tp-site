@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- BIBLE SCRIPT -->
+    <script src="/js/gbible.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-58905914-1');
+    </script>    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T4FHGCC');</script>
+    <!-- End Google Tag Manager -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://rawgit.com/peacepostman/wavify/master/wavify.js"></script>
+    <script src="https://rawgit.com/peacepostman/wavify/master/jquery.wavify.js"></script>
+    <title>Alex Turney</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="built by: alex turney">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/new.css">
+    <link rel="shortcut icon" href="/imgBin/favicon1.ico">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+</head>
+<body style="background-color: rgba(220,220,220, 1.0)">
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4FHGCC"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/sets.js"></script>
+    <div class="flexContainer gradient" style="margin: 0px;padding: 0px;">
+        <div class="showRemixContainer" style="margin: 0px;padding: 20px;">
+            <a id="showRemix" style=""> Generate Random Ideas </a>
+            <div class="remixContainer hidden">
+                <div class="ideaList" id="bottom_one"></div>
+                <div class="ideaList" id="bottom_two"></div>
+            </div>
+        </div>
+        <svg width="100%" height="100px" version="1.1" xmlns="http://www.w3.org/2000/svg"><path id="st0" d=""/></svg>
+    </div>
+<!--     <div class="gradient">
+        <svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg"><path id="st0" d=""/></svg>
+    </div> -->
+
+    <div style="background-color: rgba(220,220,220, 1.0)">
+        <div class="flexContainerBottom" style="margin-top: 0px;">
+            <div class="ideaList" id="one"></div>
+            <div class="ideaList" id="two"></div>
+        </div>
+    </div>
+
+    <style type="text/css">
+        #st0 {stroke:none;}
+    </style>
+
+        <script>        
+        // generate random number between the two (1,3) ==> 1 || 2 || 3    
+        function randomIntFromInterval(min, max) { // min and max included 
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        } 
+
+        // generate two random integers from array
+        function twoRandInts(max){
+            var one = randomIntFromInterval(1, max);     
+            var two = randomIntFromInterval(1, max);
+            while(one==two) {
+                two = randomIntFromInterval(1, max);
+            }
+            return [one, two] 
+        }
+    </script>
+
+    <script>
+        // For Vanilla JavaScript
+        var myWave = wavify( document.querySelector('#st0'), {
+          height: 40,
+          bones: 5,
+          amplitude: 30,
+          color: 'rgba(220, 220, 220, 1.0)',
+          speed: .45
+        })
+
+    </script>
+
+    <script>
+        // MAIN SCRIPT THAT RUNS ON PAGE LOAD
+        var url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_-BynalYhVxbIO2el50eN3TjHNZ9ZS0TRWbgYvkUSd15r8YZcNFhtBzQAzb5UUwGLZNspx9b6zDRd/pub?output=csv';
+        $.ajax({
+          url: url,
+          success: function (data) {
+            createIdeaList(data);
+          },
+          error: function (err) {
+            console.log(err.status);
+          } 
+        });
+    </script>
+
+    <script>
+        // GENERATE RANDOM IDEA
+        // on click --> clear remixes --> generate new remixes --> show
+        document.querySelector("#showRemix").addEventListener("click", function() {
+            document.querySelector('.remixContainer #bottom_one').innerHTML = "";
+            document.querySelector('.remixContainer #bottom_two').innerHTML = "";
+            generateRemix(localStorage.getItem("payload"));
+            document.querySelector('.remixContainer').style.display = "block";
+        })        
+    </script>
+
+    <script>
+        // GENERATE RANDOM IDEA
+        // on click --> clear remixes --> generate new remixes --> show
+        function createIdeaList(data) {
+            setNumberOfIdeas(data);
+            var arrayOfLines = data.split("\n");
+            rndIntsArray = twoRandInts(localStorage.getItem("numberOfIdeas"));
+            var rndInt1 = rndIntsArray[0];
+            var rndInt2 = rndIntsArray[1];
+            $.each(arrayOfLines, function (index, value) {
+                var insertThis = formatLine(arrayOfLines, index, value);
+                if (index % 2 == 1) {
+                    $('#one').append(insertThis); 
+                } else {
+                    $('#two').append(insertThis);                    
+                }
+
+                if ((index==rndInt1 || index==rndInt2)) {   
+                    if (index==rndInt1) {
+                        $('#bottom_one').append(insertThis); 
+                    } else {
+                        $('#bottom_two').append(insertThis);                    
+                    }
+                }
+            });
+        }
+
+        // SET LOCAL STORAGE VARIABLES based on API response
+        function setNumberOfIdeas(payload) {
+            var tempArray = payload.split("\n");        
+            var tempLength = tempArray.length - 1;
+            localStorage.setItem("numberOfIdeas", tempLength);
+            localStorage.setItem("payload", payload);
+        }
+    </script>
+
+    <script>
+    function generateRemix(data) {
+        setNumberOfIdeas(data);
+        var arrayOfLines = data.split("\n");
+        rndIntsArray = twoRandInts(localStorage.getItem("numberOfIdeas"));
+        var rndInt1 = rndIntsArray[0];
+        var rndInt2 = rndIntsArray[1]; 
+        $.each(arrayOfLines, function (index, value) {
+            // index of line is the # and value is the actual line from .each fxn
+            var insertThis = formatLine(arrayOfLines, index, value);
+            if ((index==rndInt1 || index==rndInt2)) {   
+                if (index==rndInt1) {
+                    $('#bottom_one').append(insertThis); 
+                } else {
+                    $('#bottom_two').append(insertThis);                    
+                }
+            }     
+        });
+    }
+
+    function formatLine(arrayOfLines, index, value) {
+        var line_html = "";
+        if (index !== 0) {
+            var line_array = value.split(",");
+            var ideaText = line_array[0]?.trim();
+            var link = line_array[1]?.trim();
+
+            line_html = "<div class='line_container'>";
+            if (link && link !== "") {
+                line_html += '<div class="ideaText"><a href="' + link + '" target="_blank" rel="noopener noreferrer" style="color:white; text-decoration: underline !important;">' + ideaText + '</a></div>';
+            } else {
+                line_html += '<div class="ideaText"><span style="color:white;">' + ideaText + '</span></div>';
+            }
+            line_html += "</div>";
+        }
+        return line_html;
+    }
+    </script>
+
+    <script>
+        // show or hide images on click of cells above {this is for THE WEBSITE REPO research page and less for idea generator (this)}
+         $(".ideaList .open").click(function() {
+                var temp = $(this).attr("data-num");                
+                var isHidden = $(this).parent().next().find("[data-num='"+temp+"']").hasClass("hide");
+                $(this).parent().next().find("img").removeClass("show");
+                $(this).parent().next().find("img").addClass("hide");
+                if (isHidden) {
+                    $(this).parent().next().find("[data-num='"+temp+"']").addClass("show");
+                    $(this).parent().next().find("[data-num='"+temp+"']").removeClass("hide");
+                } else {
+                    $(this).parent().next().find("[data-num='"+temp+"']").addClass("hide");
+                    $(this).parent().next().find("[data-num='"+temp+"']").removeClass("show");
+                }
+
+            });
+    </script>
+
+</body>
+<style>
+    .hidden {
+        display: none;    
+    }
+    #showRemix {
+        background-color: #1B1075;
+        padding: 10px; 
+        border-radius: 10px; 
+        color: #ffffff; 
+        margin-bottom: 12px; 
+        display: inline-block;
+    }
+    #showRemix:hover {
+        padding: 10px; 
+        border-radius: 10px; 
+        color: #000; 
+        background-color: #FFF; 
+        border:  1px solid #000;
+    }
+    .remixContainer .line_container {
+        background-color: #2F1BC2;    
+    }
+</style>
+</html>

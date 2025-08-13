@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/alexturney.css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Stats Practuce</title>
+<style>
+	p {
+		font-size: 11px;
+	}
+	
+	#r {
+		width: 1000px;
+		float: left;
+		display: block;
+	}
+</style>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+
+<body>
+<h1 id="t"> </h1>
+<div width="1000px" float="right" id="r" display="inline-block">
+
+</div>
+<script>  
+	window.onLoad = stats();
+
+	function stats () {
+		
+		d3.select("svg")
+       		.remove();
+		d3.csv("cellPhone.csv", function(error, data) { 
+
+			data.forEach(function (d) {
+				d.Country = d.Country;
+				d.Cell_phones_total = +d.Cell_phones_total;
+			});	
+			
+			var maxy = d3.max(data, function(d) { return d.Cell_phones_total; });
+			console.log(maxy);
+			
+			var canvas = d3.select("#r")
+				.append("svg")
+				.attr("width", 1400)
+				.attr("height", 1000)
+				.append("g") //everything contained inside a g tag so transformationg can occur
+				.attr("transform", "translate(20, 20)")
+				
+			var widthScale = d3.scale.linear() 
+				.domain([0, maxy])
+				.range([0, 500])
+				
+			var activityScale = d3.scale.linear() 
+				.domain([0, maxy])
+				.range([0, 300])
+				
+			var heightScale = d3.scale.linear() 
+				.domain([0, maxy])
+				.range([0, 500])
+				
+			var axis = d3.svg.axis()
+				.ticks(4)
+				.scale(widthScale);
+			
+			var color = d3.scale.linear() 
+				.domain([0, maxy])
+				.range(["red", "blue"])
+				
+			var cx = [];
+			var cy = [];
+			data.forEach(function(d) { 
+				cx.push(Math.random() * 1400);
+				cy.push(Math.random() * 1000);
+			});
+			console.log(cx);
+				
+			var circles = canvas.selectAll("circle")
+				.data(data)
+				.enter()
+					.append("circle")
+					.attr("cx", function(d, i) { return cx[i] })
+					.attr("cy", function(d, i) { return cy[i] })
+					.attr("fill", function(d) { return color(d.Cell_phones_total) })
+					.attr("r", function(d) { return activityScale(d.Cell_phones_total) }) ;
+				
+			var text = canvas.selectAll("text")
+                        .data(data)
+                        .enter()
+                        .append("text");
+						
+			var textLabels = text
+                 .attr("x", function(d, i) { return cx[i]; })
+                 .attr("y", function(d, i) { return cy[i]; })
+                 .text( function (d) { return d.Country + " has " + d.Cell_phones_total + " cell phones"; })
+                 .attr("font-family", "sans-serif")
+                 .attr("font-size", "10px")
+                 .attr("fill", "black");
+			
+		});
+	}
+	
+	
+</script>
+</body>
+</html>

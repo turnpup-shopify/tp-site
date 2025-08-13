@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Alex Turney</title>
+    <link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+    <link rel="shortcut icon" href="../imgBin/favicon1.ico">
+    <link rel="stylesheet" type="text/css" href="../css/alexturney.css">
+    <link rel="stylesheet" type="text/css" href="../css/subpage.css">
+    </script>
+    <style></style>
+</head>
+
+<body>
+    <script src="../js/jquery.js"></script>
+    <script src="../js/bootstrap.js"></script>
+    <div class="projectNav">
+        <p><a id="desc_link"> - Description </a></p>
+        <p><a id="demoPitch_link"> - Pitch </a></p>
+    </div>
+    <div class="projectContainer" id="desc">
+    <h1> Simulation Project "Simulatte" </h1>
+    <p> <strong> Web Interface: </strong> Python/HTML/CSS </p>
+    <p> <strong> Simulation Software: </strong> Sigma </p>
+     <p> <strong> Description: </strong> The goal of this project was to create a tool to help simulate a user's coffee shops. Key statistics such as average customer wait time and number of customers in line can be found with this tool. </p>
+    <img src="../imgBin/sigma.png" width="580px">
+  </div>
+    <br>
+    <div class="projectContainer" id="desc">
+    <h1 id="demoPitch"> Demo + Pitch </h1>
+    <iframe width="560" height="315" src="//www.youtube.com/embed/BHSA5vI48PY" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <script>
+      $("#demoPitch_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#demoPitch").offset().top
+        }, "slow");
+    });
+    $("#desc_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#desc").offset().top
+        }, "slow");
+    });
+    </script>
+</body>
+
+</html>

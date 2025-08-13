@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color:white">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Alex Turney</title>
+    <link rel="stylesheet" type="text/css" href="../../css/new.css">
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="../../css/subpage.css">
+    <link rel="shortcut icon" href="../../imgBin/favicon1.ico">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400" rel="stylesheet">
+    </script>
+    <style>
+        h1 {
+            color: black;
+            margin: 10px auto 20px;
+            font-family: 'Cardo', serif;
+            font-weight: 400;
+            font-size: 48px;
+            text-align:left;
+        }
+        p {
+            font-family: 'Cardo', serif;
+            font-weight: 300;
+            font-size: 18px;
+            margin: 6px 0px;
+        }
+        h2 {
+            font-size: 24px;
+            margin: 20px 0px;
+            font-weight: bold;
+        }
+        .break {
+            height: 10px;
+            margin: 0;
+            padding: 0;
+        }
+        .filters {
+            background-color:#EEE;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="../../js/jquery.js"></script>
+    <script src="../../js/bootstrap.js"></script>
+    <script src="../../js/sets.js"></script>
+    <div class="SetSection" style="background-color:white">
+        <div class="topContainer">
+            <div class="filters">
+                <div class="filter" id="intro_link">intro</div>
+                <div class="filter" id="demo_link">demo</div>
+            </div>
+        </div>
+        <div id="intro">
+            <div class="projectContainer">
+                <h1> Passbook </h1>
+                <h2>the idea</h2>
+                <p>
+                    Passbook stemmed from the need to have a platform catered to travelers who want to remember their trips in an authentic way.
+                </p>
+                <h2>the gap</h2>
+                <p>
+                    As Instagram and Facebook continue to grow, their users become less and less likely to post authentically, because of the emphasis on likes with an increasingly large mass of "friends".
+                </p>
+                <h2>key insights</h2>
+                <p>
+                    - People want to be able to look back on their vacations and reflect on all of their experiences, not just the Instagram worthy pictures.
+                </p>
+                <p>
+                    - It would be awesome to be able to create a digital scrapbook that you could share with whomever.
+                </p>
+                <p>
+                    - Being able to add a description of what, where, when, and with whom an activity was done in addition to a photograph can make that memory much more meaningful.
+                </p>
+            </div>
+        </div>
+        <div class="projectContainer">
+            <div>
+                <div height="20px"></div>
+                <img src="Passbook_Home_mock.jpg" style="width:100%;max-width:2000px;">
+                <h1 style="color:black;margin:40px auto;"> Proof of Concept Video </h1>
+                <div style="width:840px;margin:40px auto;" id="demo">
+                    <iframe align="middle" width="840" height="472" src="https://www.youtube.com/embed/rQ23Ja393O8" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div style="height:30px"></div>
+                <div style="col-sm-12">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $("#demo_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#demo").offset().top
+        }, "slow");
+    });
+    $("#intro_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#intro").offset().top
+        }, "slow");
+    });
+    var divHeight = $(window).scrollTop();
+    var viewportHeight = $(window).height();
+    // set the positioning of the filters on the page
+    var topOfGridPosition = $('.projectContainer').position()
+    var filterHeight = topOfGridPosition.top + 80;
+    $('.filters').css('top',filterHeight+"px");
+    var filterWidth = $(window).width()*.04;
+    $('.filters').css('right',filterWidth+"px");
+    </script>
+</body>
+
+</html>

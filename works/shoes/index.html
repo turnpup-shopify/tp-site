@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="alexturney">
+    <title>Alex Turney</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.css">
+    <link rel="shortcut icon" href="../../imgBin/favicon1.ico">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick-theme.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/subpage.css">
+</head>
+<style></style>
+
+<body>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script>
+    <script src="../../js/bootstrap.js"></script>
+    <script src="../../js/sets.js"></script>
+    <div class="projectNav">
+        <p><a id="renderings_link"> - Shoe Renderings </a></p>
+        <p><a id="sketches_link"> - Shoe Sketches </a></p>
+        <p><a id="innovations_link"> - Shoe Ideation </a></p>
+    </div>
+    <div class="projectContainer">
+        <h1 id="renderings"> Renderings </h1>
+        <div class="single-item">
+            <div><img src="ColorRender.png" width="500px"></div>
+             <div><img src="patternSpiralRoshe.png" width="500px"></div>
+              <div><img src="34th.png" width="500px"></div>
+            <div><img src="Paver.png" width="500px"></div>
+            <div><img src="Simplicity2.png" width="500px"></div>
+            <div><img src="Air-Conditioned_03.png" width="500px"></div>
+            <div><img src="Moon.png" width="500px"></div>
+
+            <div><img src="WabiSabi.png" width="500px"></div>
+        </div>
+    </div>
+    <div class="projectContainer">
+        <h1 id="sketches"> Sketches </h1>
+        <div class="single-item">
+            <div><img src="sketch1.png" width="500px"></div>
+            <div><img src="sketch2.png" width="500px"></div>
+            <div><img src="sketch3.png" width="500px"></div>
+            <div><img src="sketch4.png" width="500px"></div>
+        </div>
+    </div>
+    <div class="projectContainer">
+        <h1 id="innovations"> Ideation </h1>
+        <div style="width:800px;margin:0 auto;"><img src="../../imgBin/Shoe_Concepts_Projects.jpg" width="800px"></div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        $('.single-item').slick({
+            arrows: true,
+        });
+    });
+    $("#renderings_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#renderings").offset().top - 50
+        }, "slow");
+    });
+    $("#sketches_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#sketches").offset().top
+        }, "slow");
+    });
+     $("#innovations_link").click(function() {
+        $('html, body').animate({
+            scrollTop: $("#innovations").offset().top
+        }, "slow");
+    });
+    </script>
+</body>
+
+</html>
