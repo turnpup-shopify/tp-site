@@ -24,6 +24,15 @@ body {
     line-height: 1;
 }
 
+.set {
+    height: 100%;
+    width: 100%;
+}
+
+.set img {
+    object-fit: cover;
+}
+
 .set iframe {
     width:  80%;
     position: fixed;    
