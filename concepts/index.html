@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- BIBLE SCRIPT -->
+     <script src="/js/gbible.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-58905914-1');
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T4FHGCC');</script>
+    <!-- End Google Tag Manager -->
+    <title>Alex Turney</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="built by: alex turney">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/new.css">
+    <link rel="shortcut icon" href="/imgBin/favicon1.ico">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+</head>
+<body class="gradient">
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4FHGCC"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/sets.js"></script>
+    <div id="component-container"></div>
+    <a href="https://docs.google.com/spreadsheets/d/1Pufazx9fukiEvBFFcgm3Kqb4gVUJTZovHW_jn7qYbWo/edit?gid=0#gid=0">editing</a>
+    <script>
+        fetch('https://alexturney.com/components/gsheets.html')
+            .then(res => res.text())
+            .then(html => {
+            document.getElementById('component-container').innerHTML = html;
+            });
+        tpRandom();
+        loadCsvData('https://docs.google.com/spreadsheets/d/e/2PACX-1vScFhLaExt83G-CH4H0iKqu5M-YSVD3ResgWAuEXfV0SX31Tq4lg0-uXyM2Oqo4zdA394uvd6MCx9Lr/pub?output=csv');
+    </script>
+</body>
+</html>
