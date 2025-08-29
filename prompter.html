@@ -66,12 +66,28 @@
           const res = await fetch(url, { mode: "cors" });
           if (!res.ok) throw new Error("CSV fetch failed");
           text = await res.text();
+          try {
+            console.log("[prompter] CSV fetched from:", url);
+            console.log("[prompter] CSV raw preview (first 1000 chars):", text.slice(0, 1000));
+          } catch (e) {}
         } catch (e) {
           alert("Could not fetch CSV. Check URL and publish settings.");
           return;
         }
         const data = parseCSV(text);
+        try {
+          console.log("[prompter] Parsed CSV rows:", data);
+          console.log("[prompter] Parsed CSV row count:", Array.isArray(data) ? data.length : 0);
+          if (Array.isArray(data) && data.length > 0) {
+            console.log("[prompter] First row object keys:", Object.keys(data[0]));
+            console.log("[prompter] First 3 rows sample:", data.slice(0, 3));
+          }
+        } catch (e) {}
         const optionsByColumn = columnsToOptions(data);
+        try {
+          console.log("[prompter] Options by column:", optionsByColumn);
+          Object.entries(optionsByColumn).forEach(([k, v]) => console.log(`[prompter] Column "${k}" unique values:`, v));
+        } catch (e) {}
         populateDropdowns(optionsByColumn);
       }
 
