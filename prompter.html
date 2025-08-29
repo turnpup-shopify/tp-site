@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Scene Builder Prompt Generator</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 24px; max-width: 700px; margin: auto; background: #fdfdfd; }
+      h2 { font-size: 22px; margin-bottom: 20px; }
+      label { font-weight: bold; display: block; margin-top: 18px; margin-bottom: 5px; }
+      select { width: 100%; padding: 8px; font-size: 14px; margin-bottom: 10px; }
+      input[type="checkbox"] { margin-right: 8px; }
+      #output { background: #f4f4f4; padding: 16px; border-radius: 6px; margin-top: 24px; white-space: pre-wrap; font-size: 15px; }
+      #copy-btn { margin-top: 10px; padding: 10px; font-size: 14px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+      #copy-btn:active { background-color: #0056b3; }
+      button.generate { margin-top: 20px; padding: 10px; font-size: 15px; width: 100%; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+      button.generate:active { background-color: #218838; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .muted { font-size: 12px; color: #666; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <h2>Scene Builder Prompt Generator</h2>
+
+    <div class="row">
+      <div>
+        <label for="csvUrl">Public CSV URL (Google Sheets publish to web)</label>
+        <input id="csvUrl" type="url" placeholder="https://docs.google.com/spreadsheets/d/e/2PACX-1vT4jxIah45FQctDQsZnxsWvqW5LcwFc_xiTD7-15Idk-k0h8bsF6t6OkovmjGCc4Rucd19QgNCnkHHb/pub?gid=0&single=true&output=csv" style="width:100%; padding:8px;" />
+        <div class="muted">Set once, then Load CSV.</div>
+      </div>
+      <div style="align-self:end;">
+        <button class="generate" style="background:#0d6efd;" onclick="loadCSV()">Load CSV</button>
+      </div>
+    </div>
+
+    <div id="dropdowns"></div>
+
+    <label><input type="checkbox" id="includeMood" /> Include mood and ambient sound</label>
+    <label><input type="checkbox" id="includeTime" /> Include golden hour light</label>
+
+    <button class="generate" style="background-color:#ffc107; color:black;" onclick="randomizeSelections()">Randomize</button>
+    <button class="generate" style="background-color:#dc3545;" onclick="clearSelections()">Clear All</button>
+    <button class="generate" onclick="generateAllPrompts()">Generate 4 Prompts</button>
+    <button class="generate" style="background:#6c757d;" onclick="downloadImagesFromOutput()">Download Images From Prompts</button>
+
+    <div id="output"></div>
+    <button id="copy-btn" style="display:none;" onclick="copyToClipboard()">Copy to Clipboard</button>
+
+    <script>
+      // Configure default CSV here if you want
+      const CSV_URL_DEFAULT = ""; // e.g., "https://docs.google.com/spreadsheets/d/XXXX/pub?output=csv"
+
+      const startPrompt = "Put the attached home good in a";
+      const endPrompt = "Build a photo realistic interior scene";
+
+      function getCsvUrl() {
+        const el = document.getElementById("csvUrl");
+        if (!el.value && CSV_URL_DEFAULT) el.value = CSV_URL_DEFAULT;
+        return el.value.trim();
+      }
+
+      async function loadCSV() {
+        const url = getCsvUrl();
+        if (!url) { alert("Provide a public CSV URL."); return; }
+        let text;
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (!res.ok) throw new Error("CSV fetch failed");
+          text = await res.text();
+        } catch (e) {
+          alert("Could not fetch CSV. Check URL and publish settings.");
+          return;
+        }
+        const data = parseCSV(text);
+        const optionsByColumn = columnsToOptions(data);
+        populateDropdowns(optionsByColumn);
+      }
+
+      function parseCSV(text) {
+        // Simple CSV parser for standard cases (quotes supported)
+        const rows = [];
+        let i = 0, cur = "", inQuotes = false, row = [];
+        while (i < text.length) {
+          const c = text[i];
+          if (c === '"') {
+            if (inQuotes && text[i + 1] === '"') { cur += '"'; i++; }
+            else { inQuotes = !inQuotes; }
+          } else if (c === ',' && !inQuotes) {
+            row.push(cur); cur = "";
+          } else if ((c === '\n' || c === '\r') && !inQuotes) {
+            if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); row = []; cur = ""; }
+            // handle \r\n
+            if (c === '\r' && text[i + 1] === '\n') i++;
+          } else {
+            cur += c;
+          }
+          i++;
+        }
+        if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); }
+        // Convert to objects with headers
+        if (rows.length === 0) return [];
+        const headers = rows[0].map(h => h.trim());
+        return rows.slice(1).map(r => {
+          const obj = {};
+          headers.forEach((h, idx) => obj[h] = (r[idx] || "").trim());
+          return obj;
+        });
+      }
+
+      function columnsToOptions(rows) {
+        // Collect unique values per header
+        const keys = rows.length ? Object.keys(rows[0]) : [];
+        const out = {};
+        keys.forEach(k => { out[k] = []; });
+        rows.forEach(r => {
+          keys.forEach(k => {
+            const v = (r[k] || "").trim();
+            if (v && !out[k].includes(v)) out[k].push(v);
+          });
+        });
+        return out;
+      }
+
+      function populateDropdowns(data) {
+        const container = document.getElementById("dropdowns");
+        container.innerHTML = "";
+        Object.entries(data).forEach(([key, options]) => {
+          const label = document.createElement("label");
+          label.textContent = key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+          label.setAttribute("for", key);
+          container.appendChild(label);
+
+          const select = document.createElement("select");
+          select.id = key;
+
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.text = "— Select —";
+          select.appendChild(defaultOption);
+
+          options.forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.text = opt;
+            select.appendChild(option);
+          });
+
+          container.appendChild(select);
+        });
+      }
+
+      function generatePrompt(values, includeMood, includeTime) {
+        const v = (k) => (values[k] || "").toLowerCase();
+        let promptParts = [];
+
+        if (values["interior design style"] || values["room type"]) {
+          const style = v("interior design style");
+          const room = v("room type");
+          if (style && room) promptParts.push(`${startPrompt} ${style} ${room}.`);
+          else if (style) promptParts.push(`${startPrompt} scene styled in a ${style} aesthetic.`);
+          else if (room) promptParts.push(`${startPrompt} scene that takes place in a ${room}.`);
+        }
+
+        if (values.flooring || values["wall covering"]) {
+          let sentence = `The space features`;
+          const flooring = v("flooring");
+          const wall = v("wall covering");
+          if (flooring) sentence += ` ${flooring} flooring`;
+          if (flooring && wall) sentence += ` and`;
+          if (wall) sentence += ` ${wall} walls`;
+          sentence += `.`;
+          promptParts.push(sentence);
+        }
+
+        if (values.lighting) promptParts.push(`It is lit with ${v("lighting")}.`);
+
+        if (values["table to include"] || values["seating to include"]) {
+          const table = v("table to include");
+          const seating = v("seating to include");
+          let sentence = `The room includes`;
+          if (table && seating) sentence += ` a ${table} and a ${seating}`;
+          else if (table) sentence += ` a ${table}`;
+          else if (seating) sentence += ` a ${seating}`;
+          sentence += `.`;
+          promptParts.push(sentence);
+        }
+
+        if (values["decorate walls with"]) {
+          promptParts.push(`The walls are styled with ${v("decorate walls with")}.`);
+        }
+
+        if (values["high-end decor to include"]) {
+          promptParts.push(`Finishing touches include a ${v("high-end decor to include")}.`);
+        }
+
+        if (includeTime) promptParts.push(`Golden hour light washes over the room.`);
+        if (includeMood) promptParts.push(`The mood is serene and softly atmospheric, with ambient sound design.`);
+
+        promptParts.push(`${endPrompt}.`);
+        return promptParts.join(" ");
+      }
+
+      function clearSelections() {
+        document.querySelectorAll("select").forEach(s => s.value = "");
+        document.getElementById("output").innerText = "";
+        document.getElementById("copy-btn").style.display = 'none';
+      }
+
+      function generateAllPrompts() {
+        const selects = document.querySelectorAll("select");
+        const includeMood = document.getElementById("includeMood")?.checked;
+        const includeTime = document.getElementById("includeTime")?.checked;
+
+        let allPrompts = [];
+
+        for (let i = 0; i < 4; i++) {
+          let values = {};
+          selects.forEach(select => {
+            const currentValue = select.value.trim();
+            if (currentValue) values[select.id] = currentValue;
+            else {
+              const options = Array.from(select.options).filter(opt => opt.value !== "");
+              const random = options[Math.floor(Math.random() * options.length)];
+              values[select.id] = random?.value || "";
+            }
+          });
+          const prompt = generatePrompt(values, includeMood, includeTime);
+          allPrompts.push(`Prompt ${i + 1}:\n${prompt}`);
+        }
+
+        const combined = allPrompts.join("\n\n");
+        document.getElementById("output").innerText = combined;
+        document.getElementById("copy-btn").style.display = 'inline-block';
+      }
+
+      function randomizeSelections() {
+        const selects = document.querySelectorAll("select");
+        selects.forEach(select => {
+          if (!select.value) {
+            const options = Array.from(select.options).filter(opt => opt.value !== "");
+            if (options.length > 0) {
+              const randomOption = options[Math.floor(Math.random() * options.length)];
+              select.value = randomOption.value;
+            }
+          }
+        });
+      }
+
+      function copyToClipboard() {
+        const text = document.getElementById("output").innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById("copy-btn");
+          btn.innerText = "Copied!";
+          setTimeout(() => { btn.innerText = "Copy to Clipboard"; }, 1500);
+        });
+      }
+
+      function extractImageUrls(text) {
+        // Find http or https URLs, then filter to image extensions
+        const urlRegex = /(https?:\/\/[^\s)"]+)/g;
+        const all = [...text.matchAll(urlRegex)].map(m => m[1]);
+        const imgExt = /\.(png|jpg|jpeg|webp|gif|avif|svg)(\?|#|$)/i;
+        return all.filter(u => imgExt.test(u));
+      }
+
+      async function downloadImage(url) {
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (!res.ok) throw new Error("fetch failed");
+          const blob = await res.blob();
+          const a = document.createElement("a");
+          const u = new URL(url);
+          const name = u.pathname.split("/").pop() || "image";
+          a.href = URL.createObjectURL(blob);
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          return { url, ok: true };
+        } catch (e) {
+          console.warn("Download failed for", url, e);
+          return { url, ok: false, error: e.message };
+        }
+      }
+
+      async function downloadImagesFromOutput() {
+        const text = document.getElementById("output").innerText || "";
+        if (!text) { alert("Generate prompts first."); return; }
+        const urls = extractImageUrls(text);
+        if (urls.length === 0) { alert("No image URLs found in prompts."); return; }
+
+        // Browsers may block too many downloads. Proceed in series.
+        const results = [];
+        for (const url of urls) {
+          /* eslint no-await-in-loop: "off" */
+          const r = await downloadImage(url);
+          results.push(r);
+        }
+
+        const failed = results.filter(r => !r.ok);
+        if (failed.length) {
+          alert("Some images could not be downloaded. Likely CORS or 403.");
+        }
+      }
+
+      // Optional auto load if default set
+      window.addEventListener("load", () => {
+        if (CSV_URL_DEFAULT) {
+          document.getElementById("csvUrl").value = CSV_URL_DEFAULT;
+          loadCSV();
+        }
+      });
+    </script>
+  </body>
+</html>
