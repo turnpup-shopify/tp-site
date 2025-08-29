@@ -58,6 +58,13 @@
           alert("Could not fetch CSV. Check URL and publish settings.");
           return;
         }
+        // Vertical CSV support: first column holds field names; top-left cell is 'Category'
+        if (isVerticalCSV(text)) {
+          const optionsByColumn = optionsFromVerticalCSV(text);
+          console.log('[prompter] Detected vertical CSV. Options by column:', optionsByColumn);
+          populateDropdowns(optionsByColumn);
+          return;
+        }
         const data = parseCSV(text);
         try {
           console.log("[prompter] Parsed CSV rows:", data);
@@ -73,6 +80,43 @@
           Object.entries(optionsByColumn).forEach(([k, v]) => console.log(`[prompter] Column "${k}" unique values:`, v));
         } catch (e) {}
         populateDropdowns(optionsByColumn);
+      }
+
+      function _csvToMatrix(text) {
+        const rows = []; let i = 0, cur = "", inQuotes = false, row = [];
+        while (i < text.length) {
+          const c = text[i];
+          if (c === '"') { if (inQuotes && text[i+1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; } }
+          else if (c === ',' && !inQuotes) { row.push(cur); cur = ""; }
+          else if ((c === '\n' || c === '\r') && !inQuotes) {
+            if (cur.length || row.length) { row.push(cur); rows.push(row); row = []; cur = ""; }
+            if (c === '\r' && text[i+1] === '\n') i++;
+          } else { cur += c; }
+          i++;
+        }
+        if (cur.length || row.length) { row.push(cur); rows.push(row); }
+        return rows.map(r => r.map(x => (x || '').trim()));
+      }
+
+      function isVerticalCSV(text) {
+        const m = _csvToMatrix(text);
+        if (!m.length) return false;
+        const firstCell = (m[0][0] || '').toLowerCase();
+        const nonEmptyHeaderCount = m[0].filter(x => (x || '').trim().length > 0).length;
+        // Vertical when first row only has the word 'Category' and subsequent rows are field name + values
+        return firstCell === 'category' && nonEmptyHeaderCount === 1;
+      }
+
+      function optionsFromVerticalCSV(text) {
+        const m = _csvToMatrix(text);
+        const map = {};
+        for (let r = 1; r < m.length; r++) {
+          const key = (m[r][0] || '').trim();
+          if (!key) continue;
+          const vals = (m[r].slice(1) || []).map(v => (v || '').trim()).filter(Boolean);
+          map[key] = Array.from(new Set(vals));
+        }
+        return map;
       }
 
       function parseCSV(text) {
