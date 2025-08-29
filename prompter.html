@@ -42,6 +42,17 @@
       const startPrompt = "Put the attached home good in a";
       const endPrompt = "Build a photo realistic interior scene";
 
+      let lastImageUrls = [];
+
+      function findUrls(s){ return (s && s.match(/https?:\/\/[^\s)"]+/g)) || []; }
+      function stripUrls(s){
+        if (!s) return "";
+        return s
+          .replace(/\(\s*https?:\/\/[^\s)\"]+\s*\)/g, "") // remove parenthetical URLs
+          .replace(/https?:\/\/[^\s)\"]+/g, "")              // remove bare URLs
+          .replace(/\s{2,}/g, " ")
+          .trim();
+      }
 
       async function loadCSV() {
         const url = CSV_URL;
@@ -193,54 +204,78 @@
       }
 
       function generatePrompt(values, includeMood, includeTime) {
-        const v = (k) => (values[k] || "").toLowerCase();
-        let promptParts = [];
+        const raw = (k) => (values[k] || "");
+        const toText = (x) => stripUrls((x || "").toLowerCase());
 
-        if (values["interior design style"] || values["room type"]) {
-          const style = v("interior design style");
-          const room = v("room type");
-          if (style && room) promptParts.push(`${startPrompt} ${style} ${room}.`);
-          else if (style) promptParts.push(`${startPrompt} scene styled in a ${style} aesthetic.`);
-          else if (room) promptParts.push(`${startPrompt} scene that takes place in a ${room}.`);
+        // Collect image URLs from any selected fields
+        const urls = []
+          .concat(findUrls(raw("table to include")))
+          .concat(findUrls(raw("seating to include")))
+          .concat(findUrls(raw("decorate walls with")))
+          .concat(findUrls(raw("high-end decor to include")));
+
+        const imageCount = urls.length;
+        const startNoun = imageCount >= 2 ? "home goods" : "home good";
+
+        let parts = [];
+
+        // Opening sentence
+        const style = toText(raw("interior design style"));
+        const room  = toText(raw("room type"));
+        if (style && room) parts.push(`Put the attached ${startNoun} in a ${style} ${room}.`);
+        else if (style)    parts.push(`Put the attached ${startNoun} in a scene styled in a ${style} aesthetic.`);
+        else if (room)     parts.push(`Put the attached ${startNoun} in a scene that takes place in a ${room}.`);
+
+        // Space features
+        const flooring = toText(raw("flooring"));
+        const wall     = toText(raw("wall covering"));
+        if (flooring || wall) {
+          let s = `The space features`;
+          if (flooring) s += ` ${flooring} flooring`;
+          if (flooring && wall) s += ` and`;
+          if (wall) s += ` ${wall} walls`;
+          s += `.`;
+          parts.push(s);
         }
 
-        if (values.flooring || values["wall covering"]) {
-          let sentence = `The space features`;
-          const flooring = v("flooring");
-          const wall = v("wall covering");
-          if (flooring) sentence += ` ${flooring} flooring`;
-          if (flooring && wall) sentence += ` and`;
-          if (wall) sentence += ` ${wall} walls`;
-          sentence += `.`;
-          promptParts.push(sentence);
+        // Lighting
+        if (raw("lighting")) parts.push(`It is lit with ${toText(raw("lighting"))}.`);
+
+        // Includes
+        const table   = toText(raw("table to include"));
+        const seating = toText(raw("seating to include"));
+        if (table || seating) {
+          let s = `The room includes`;
+          if (table && seating) s += ` a ${table} and a ${seating}`;
+          else if (table)       s += ` a ${table}`;
+          else if (seating)     s += ` a ${seating}`;
+          s += `.`;
+          parts.push(s);
         }
 
-        if (values.lighting) promptParts.push(`It is lit with ${v("lighting")}.`);
-
-        if (values["table to include"] || values["seating to include"]) {
-          const table = v("table to include");
-          const seating = v("seating to include");
-          let sentence = `The room includes`;
-          if (table && seating) sentence += ` a ${table} and a ${seating}`;
-          else if (table) sentence += ` a ${table}`;
-          else if (seating) sentence += ` a ${seating}`;
-          sentence += `.`;
-          promptParts.push(sentence);
+        // Walls decor
+        if (raw("decorate walls with")) {
+          parts.push(`The walls are styled with ${toText(raw("decorate walls with"))}.`);
         }
 
-        if (values["decorate walls with"]) {
-          promptParts.push(`The walls are styled with ${v("decorate walls with")}.`);
+        // High-end decor
+        if (raw("high-end decor to include")) {
+          parts.push(`Finishing touches include a ${toText(raw("high-end decor to include"))}.`);
         }
 
-        if (values["high-end decor to include"]) {
-          promptParts.push(`Finishing touches include a ${v("high-end decor to include")}.`);
+        if (includeTime) parts.push(`Golden hour light washes over the room.`);
+        if (includeMood) parts.push(`The mood is serene and softly atmospheric, with ambient sound design.`);
+
+        parts.push(`${endPrompt}.`);
+
+        // Mirror rule: if 'mirror' appears in prompt text or any URL
+        const promptLower = parts.join(" ").toLowerCase();
+        const mirrorInUrls = urls.some(u => /mirror/i.test(u));
+        if (promptLower.includes("mirror") || mirrorInUrls) {
+          parts.push(`Use a realistic reflection that is simple and not distracting.`);
         }
 
-        if (includeTime) promptParts.push(`Golden hour light washes over the room.`);
-        if (includeMood) promptParts.push(`The mood is serene and softly atmospheric, with ambient sound design.`);
-
-        promptParts.push(`${endPrompt}.`);
-        return promptParts.join(" ");
+        return { text: parts.join(" "), urls };
       }
 
       function clearSelections() {
@@ -255,21 +290,28 @@
         const includeTime = document.getElementById("includeTime")?.checked;
 
         let allPrompts = [];
+        lastImageUrls = [];
 
         for (let i = 0; i < 4; i++) {
           let values = {};
           selects.forEach(select => {
             const currentValue = select.value.trim();
-            if (currentValue) values[select.id] = currentValue;
-            else {
+            if (currentValue) {
+              values[select.id] = currentValue;
+            } else {
               const options = Array.from(select.options).filter(opt => opt.value !== "");
               const random = options[Math.floor(Math.random() * options.length)];
               values[select.id] = random?.value || "";
             }
           });
-          const prompt = generatePrompt(values, includeMood, includeTime);
-          allPrompts.push(`Prompt ${i + 1}:\n${prompt}`);
+
+          const { text, urls } = generatePrompt(values, includeMood, includeTime);
+          allPrompts.push(`Prompt ${i + 1}:\n${text}`);
+          lastImageUrls.push(...urls);
         }
+
+        // De-duplicate URLs
+        lastImageUrls = Array.from(new Set(lastImageUrls));
 
         const combined = allPrompts.join("\n\n");
         document.getElementById("output").innerText = combined;
@@ -328,23 +370,21 @@
       }
 
       async function downloadImagesFromOutput() {
-        const text = document.getElementById("output").innerText || "";
-        if (!text) { alert("Generate prompts first."); return; }
-        const urls = extractImageUrls(text);
-        if (urls.length === 0) { alert("No image URLs found in prompts."); return; }
+        let urls = Array.isArray(lastImageUrls) && lastImageUrls.length ? lastImageUrls.slice() : null;
+        if (!urls) {
+          const text = document.getElementById("output").innerText || "";
+          urls = (text.match(/https?:\/\/[^\s)"]+/g) || []);
+        }
+        if (!urls.length) { alert("No image URLs to download."); return; }
 
-        // Browsers may block too many downloads. Proceed in series.
         const results = [];
         for (const url of urls) {
           /* eslint no-await-in-loop: "off" */
           const r = await downloadImage(url);
           results.push(r);
         }
-
         const failed = results.filter(r => !r.ok);
-        if (failed.length) {
-          alert("Some images could not be downloaded. Likely CORS or 403.");
-        }
+        if (failed.length) alert("Some images could not be downloaded. Likely CORS or 403.");
       }
 
       // Always auto load on page load
