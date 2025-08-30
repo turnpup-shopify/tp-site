@@ -54,23 +54,57 @@
           .trim();
       }
 
+      // Normalize mirror names (drop URLs and parentheses)
+      function mirrorName(str){
+        return stripUrls(str || "").trim();
+      }
+
       // Globals and helpers for horizontal Bathroom schema
       let horizontalRows = [];
 
-      function populateCategoryDropdown(rows){
+      function populateBathroomDropdowns(rows){
         const container = document.getElementById("dropdowns");
         container.innerHTML = "";
-        const categories = Array.from(new Set(rows.map(r => (r["Category"] || "").trim()).filter(Boolean)));
-        const label = document.createElement("label");
-        label.textContent = "Category";
-        label.setAttribute("for", "Category");
-        container.appendChild(label);
-        const select = document.createElement("select");
-        select.id = "Category";
-        const def = document.createElement("option");
-        def.value = ""; def.text = "— Select —"; select.appendChild(def);
-        categories.forEach(c => { const o = document.createElement("option"); o.value = c; o.text = c; select.appendChild(o); });
-        container.appendChild(select);
+        const categories = Array.from(new Set(rows.map(r => (r["Category"] || "").trim()).filter(Boolean))).sort();
+
+        // Category label + select
+        const catLabel = document.createElement("label");
+        catLabel.textContent = "Category";
+        catLabel.setAttribute("for", "Category");
+        container.appendChild(catLabel);
+        const catSelect = document.createElement("select");
+        catSelect.id = "Category";
+        const catDef = document.createElement("option");
+        catDef.value = ""; catDef.text = "— Select —"; catSelect.appendChild(catDef);
+        categories.forEach(c => { const o = document.createElement("option"); o.value = c; o.text = c; catSelect.appendChild(o); });
+        container.appendChild(catSelect);
+
+        // Mirror label + select
+        const mirLabel = document.createElement("label");
+        mirLabel.textContent = "Mirror";
+        mirLabel.setAttribute("for", "Mirror");
+        container.appendChild(mirLabel);
+        const mirSelect = document.createElement("select");
+        mirSelect.id = "Mirror";
+        const mirDef = document.createElement("option");
+        mirDef.value = ""; mirDef.text = "— Select —"; mirSelect.appendChild(mirDef);
+        container.appendChild(mirSelect);
+
+        function refreshMirrorOptions(){
+          const chosen = catSelect.value || "";
+          const subset = chosen ? rows.filter(r => (r['Category']||'') === chosen) : rows;
+          const mirrors = Array.from(new Set(subset.map(r => mirrorName(r['Mirror']))
+            .filter(Boolean))).sort();
+          // reset options
+          mirSelect.innerHTML = "";
+          const d = document.createElement("option"); d.value = ""; d.text = "— Select —"; mirSelect.appendChild(d);
+          mirrors.forEach(m => { const o = document.createElement("option"); o.value = m; o.text = m; mirSelect.appendChild(o); });
+        }
+
+        // initial populate
+        refreshMirrorOptions();
+        // wire change
+        catSelect.addEventListener('change', refreshMirrorOptions);
       }
 
       async function loadCSV() {
@@ -110,7 +144,7 @@
           if (hasCols(data[0])) {
             horizontalRows = data;
             console.log('[prompter] Detected Bathroom schema. Rows:', horizontalRows.length);
-            populateCategoryDropdown(horizontalRows);
+            populateBathroomDropdowns(horizontalRows);
             return;
           }
         }
@@ -321,11 +355,16 @@
 
         if (Array.isArray(horizontalRows) && horizontalRows.length) {
           const catSel = document.getElementById('Category');
-          const chosen = catSel ? (catSel.value || '') : '';
-          // Filter by category if chosen, else use all rows
-          const rows = chosen ? horizontalRows.filter(r => (r['Category']||'') === chosen) : horizontalRows.slice();
-          // If no rows after filter, fall back to all
-          const pool = rows.length ? rows : horizontalRows;
+          const mirSel = document.getElementById('Mirror');
+          const chosenCat = catSel ? (catSel.value || '') : '';
+          const chosenMirror = mirSel ? (mirSel.value || '') : '';
+
+          let rows = horizontalRows;
+          if (chosenCat) rows = rows.filter(r => (r['Category']||'') === chosenCat);
+          if (chosenMirror) rows = rows.filter(r => mirrorName(r['Mirror']) === chosenMirror);
+          if (!rows.length) rows = horizontalRows.slice();
+
+          const pool = rows;
 
           for (let i = 0; i < 4; i++) {
             const row = pool[Math.floor(Math.random()*pool.length)];
