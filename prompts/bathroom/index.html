@@ -61,11 +61,13 @@
 
       // Globals and helpers for horizontal Bathroom schema
       let horizontalRows = [];
+      let mirrorLookup = {};
 
       function populateBathroomDropdowns(rows){
         const container = document.getElementById("dropdowns");
         container.innerHTML = "";
         const categories = Array.from(new Set(rows.map(r => (r["Category"] || "").trim()).filter(Boolean))).sort();
+        const mirrorsAll = Array.from(new Set(rows.map(r => mirrorName(r['Mirror'])).filter(Boolean))).sort();
 
         // Category label + select
         const catLabel = document.createElement("label");
@@ -79,7 +81,7 @@
         categories.forEach(c => { const o = document.createElement("option"); o.value = c; o.text = c; catSelect.appendChild(o); });
         container.appendChild(catSelect);
 
-        // Mirror label + select
+        // Mirror label + select (independent list)
         const mirLabel = document.createElement("label");
         mirLabel.textContent = "Mirror";
         mirLabel.setAttribute("for", "Mirror");
@@ -88,23 +90,8 @@
         mirSelect.id = "Mirror";
         const mirDef = document.createElement("option");
         mirDef.value = ""; mirDef.text = "— Select —"; mirSelect.appendChild(mirDef);
+        mirrorsAll.forEach(m => { const o = document.createElement("option"); o.value = m; o.text = m; mirSelect.appendChild(o); });
         container.appendChild(mirSelect);
-
-        function refreshMirrorOptions(){
-          const chosen = catSelect.value || "";
-          const subset = chosen ? rows.filter(r => (r['Category']||'') === chosen) : rows;
-          const mirrors = Array.from(new Set(subset.map(r => mirrorName(r['Mirror']))
-            .filter(Boolean))).sort();
-          // reset options
-          mirSelect.innerHTML = "";
-          const d = document.createElement("option"); d.value = ""; d.text = "— Select —"; mirSelect.appendChild(d);
-          mirrors.forEach(m => { const o = document.createElement("option"); o.value = m; o.text = m; mirSelect.appendChild(o); });
-        }
-
-        // initial populate
-        refreshMirrorOptions();
-        // wire change
-        catSelect.addEventListener('change', refreshMirrorOptions);
       }
 
       async function loadCSV() {
@@ -143,6 +130,8 @@
           const hasCols = (obj) => obj && Object.prototype.hasOwnProperty.call(obj, 'Category') && Object.prototype.hasOwnProperty.call(obj, 'Prompt') && Object.prototype.hasOwnProperty.call(obj, 'Mirror');
           if (hasCols(data[0])) {
             horizontalRows = data;
+            mirrorLookup = {};
+            horizontalRows.forEach(r => { const n = mirrorName(r['Mirror']); if (n && !(n in mirrorLookup)) mirrorLookup[n] = r['Mirror']; });
             console.log('[prompter] Detected Bathroom schema. Rows:', horizontalRows.length);
             populateBathroomDropdowns(horizontalRows);
             return;
@@ -359,17 +348,15 @@
           const chosenCat = catSel ? (catSel.value || '') : '';
           const chosenMirror = mirSel ? (mirSel.value || '') : '';
 
-          let rows = horizontalRows;
+          let rows = horizontalRows.slice();
           if (chosenCat) rows = rows.filter(r => (r['Category']||'') === chosenCat);
-          if (chosenMirror) rows = rows.filter(r => mirrorName(r['Mirror']) === chosenMirror);
           if (!rows.length) rows = horizontalRows.slice();
-
           const pool = rows;
 
           for (let i = 0; i < 4; i++) {
             const row = pool[Math.floor(Math.random()*pool.length)];
             const base = (row['Prompt'] || '');
-            const mirrorField = (row['Mirror'] || '');
+            const mirrorField = chosenMirror ? (mirrorLookup[chosenMirror] || '') : (row['Mirror'] || '');
             const urls = []
               .concat(findUrls(base))
               .concat(findUrls(mirrorField));
