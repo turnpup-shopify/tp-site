@@ -16,6 +16,10 @@
       button.generate:active { background-color: #218838; }
       .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
       .muted { font-size: 12px; color: #666; margin-top: 6px; }
+      .prompt-item { background:#f4f4f4; padding:14px; border-radius:6px; margin-top:12px; position:relative; }
+      .prompt-item pre { margin:0; white-space:pre-wrap; font-size:15px; }
+      .copy-single-btn { position:absolute; top:10px; right:10px; padding:6px 10px; font-size:12px; background:#007bff; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+      .copy-single-btn:active { background:#0056b3; }
     </style>
   </head>
   <body>
@@ -336,12 +340,66 @@
         document.getElementById("copy-btn").style.display = 'none';
       }
 
+      // Fisher-Yates shuffle
+      function shuffle(array){
+        for (let i = array.length - 1; i > 0; i--){
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      // Pick up to n unique rows from a pool (without replacement)
+      function pickUniqueRows(pool, n){
+        if (!Array.isArray(pool) || pool.length === 0) return [];
+        const indices = pool.map((_, i) => i);
+        shuffle(indices);
+        const take = Math.min(n, pool.length);
+        const chosen = indices.slice(0, take).map(i => pool[i]);
+        // If pool has fewer than n, allow repeats only after exhausting uniques
+        while (chosen.length < n){
+          chosen.push(pool[Math.floor(Math.random() * pool.length)]);
+        }
+        return chosen;
+      }
+
+      // Copy helper for single-prompt buttons
+      function copySingle(text, btn){
+        navigator.clipboard.writeText(text).then(()=>{
+          if (btn){ const old = btn.innerText; btn.innerText = "Copied"; setTimeout(()=>{ btn.innerText = old; }, 1200); }
+        });
+      }
+
       function generateAllPrompts() {
         const includeMood = document.getElementById("includeMood")?.checked;
         const includeTime = document.getElementById("includeTime")?.checked;
         lastImageUrls = [];
-        let allPrompts = [];
+        const out = document.getElementById('output');
+        out.innerHTML = ""; // reset
 
+        const renderPrompt = (idx, text, urls=[]) => {
+          const wrap = document.createElement('div');
+          wrap.className = 'prompt-item';
+
+          const pre = document.createElement('pre');
+          pre.textContent = text;
+
+          const btn = document.createElement('button');
+          btn.className = 'copy-single-btn';
+          btn.type = 'button';
+          btn.innerText = 'Copy';
+          btn.onclick = () => copySingle(text, btn);
+
+          wrap.appendChild(pre);
+          wrap.appendChild(btn);
+          out.appendChild(wrap);
+
+          if (Array.isArray(urls) && urls.length){
+            lastImageUrls.push(...urls);
+          }
+        };
+
+        // Branch: Bathroom horizontal schema
         if (Array.isArray(horizontalRows) && horizontalRows.length) {
           const catSel = document.getElementById('Category');
           const mirSel = document.getElementById('Mirror');
@@ -353,8 +411,9 @@
           if (!rows.length) rows = horizontalRows.slice();
           const pool = rows;
 
-          for (let i = 0; i < 4; i++) {
-            const row = pool[Math.floor(Math.random()*pool.length)];
+          const picks = pickUniqueRows(pool, 4);
+
+          picks.forEach((row, i) => {
             const base = (row['Prompt'] || '');
             const mirrorField = chosenMirror ? (mirrorLookup[chosenMirror] || '') : (row['Mirror'] || '');
             const urls = []
@@ -370,31 +429,26 @@
             if (!/^put the attached/i.test(text) && !/^create image/i.test(text)) {
               text = `Put the attached ${startNoun} in a ` + text;
             } else {
-              // swap noun if it contains 'home good' singular but multiple images present
               if (imageCount >= 2) text = text.replace(/\bhome good\b/gi, 'home goods');
             }
 
-            // Optional flags
             if (includeTime) text += ' Golden hour light washes over the room.';
             if (includeMood) text += ' The mood is serene and softly atmospheric, with ambient sound design.';
 
-            // Mirror rule
             const mirrorInUrls = urls.some(u => /mirror/i.test(u));
             if (/\bmirror\b/i.test(text) || mirrorInUrls) {
               text += ' Use a realistic reflection that is simple and not distracting.';
             }
 
-            allPrompts.push(`Prompt ${i+1}:\n${text}`);
-            lastImageUrls.push(...urls);
-          }
+            renderPrompt(i + 1, `Prompt ${i+1}:\n${text}`, urls);
+          });
 
           lastImageUrls = Array.from(new Set(lastImageUrls));
-          document.getElementById('output').innerText = allPrompts.join("\n\n");
-          document.getElementById('copy-btn').style.display = 'inline-block';
+          document.getElementById('copy-btn').style.display = 'inline-block'; // keep the global copier if desired
           return;
         }
 
-        // Fallback to legacy multi-field mode
+        // Fallback: legacy multi-field mode
         const selects = document.querySelectorAll('select');
         for (let i = 0; i < 4; i++) {
           let values = {};
@@ -409,11 +463,9 @@
             }
           });
           const { text, urls } = generatePrompt(values, includeMood, includeTime);
-          allPrompts.push(`Prompt ${i + 1}:\n${text}`);
-          lastImageUrls.push(...urls);
+          renderPrompt(i + 1, `Prompt ${i + 1}:\n${text}`, urls);
         }
         lastImageUrls = Array.from(new Set(lastImageUrls));
-        document.getElementById('output').innerText = allPrompts.join("\n\n");
         document.getElementById('copy-btn').style.display = 'inline-block';
       }
 
