@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Bathroom Vanity Prompt Generator</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 24px; max-width: 700px; margin: auto; background: #fdfdfd; }
+      h2 { font-size: 22px; margin-bottom: 20px; }
+      label { font-weight: bold; display: block; margin-top: 18px; margin-bottom: 5px; }
+      select { width: 100%; padding: 8px; font-size: 14px; margin-bottom: 10px; }
+      input[type="checkbox"] { margin-right: 8px; }
+      #output { background: #f4f4f4; padding: 16px; border-radius: 6px; margin-top: 24px; white-space: pre-wrap; font-size: 15px; }
+      #copy-btn { margin-top: 10px; padding: 10px; font-size: 14px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+      #copy-btn:active { background-color: #0056b3; }
+      button.generate { margin-top: 20px; padding: 10px; font-size: 15px; width: 100%; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+      button.generate:active { background-color: #218838; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .muted { font-size: 12px; color: #666; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <h2>Bathroom Vanity Prompt Generator</h2>
+
+
+    <div id="dropdowns"></div>
+
+    <label><input type="checkbox" id="includeMood" /> Include mood and ambient sound</label>
+    <label><input type="checkbox" id="includeTime" /> Include golden hour light</label>
+
+    <button class="generate" style="background-color:#ffc107; color:black;" onclick="randomizeSelections()">Randomize</button>
+    <button class="generate" style="background-color:#dc3545;" onclick="clearSelections()">Clear All</button>
+    <button class="generate" onclick="generateAllPrompts()">Generate 4 Prompts</button>
+    <button class="generate" style="background:#6c757d;" onclick="downloadImagesFromOutput()">Download Images From Prompts</button>
+
+    <div id="output"></div>
+    <button id="copy-btn" style="display:none;" onclick="copyToClipboard()">Copy to Clipboard</button>
+
+    <script>
+      // Use fixed CSV URL
+      const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4jxIah45FQctDQsZnxsWvqW5LcwFc_xiTD7-15Idk-k0h8bsF6t6OkovmjGCc4Rucd19QgNCnkHHb/pub?gid=1431331057&single=true&output=csv";
+
+      const startPrompt = "Put the attached home good in a";
+      const endPrompt = "Build a photo realistic interior scene";
+
+      let lastImageUrls = [];
+
+      function findUrls(s){ return (s && s.match(/https?:\/\/[^\s)"]+/g)) || []; }
+      function stripUrls(s){
+        if (!s) return "";
+        return s
+          .replace(/\(\s*https?:\/\/[^\s)\"]+\s*\)/g, "") // remove parenthetical URLs
+          .replace(/https?:\/\/[^\s)\"]+/g, "")              // remove bare URLs
+          .replace(/\s{2,}/g, " ")
+          .trim();
+      }
+
+      // Globals and helpers for horizontal Bathroom schema
+      let horizontalRows = [];
+
+      function populateCategoryDropdown(rows){
+        const container = document.getElementById("dropdowns");
+        container.innerHTML = "";
+        const categories = Array.from(new Set(rows.map(r => (r["Category"] || "").trim()).filter(Boolean)));
+        const label = document.createElement("label");
+        label.textContent = "Category";
+        label.setAttribute("for", "Category");
+        container.appendChild(label);
+        const select = document.createElement("select");
+        select.id = "Category";
+        const def = document.createElement("option");
+        def.value = ""; def.text = "— Select —"; select.appendChild(def);
+        categories.forEach(c => { const o = document.createElement("option"); o.value = c; o.text = c; select.appendChild(o); });
+        container.appendChild(select);
+      }
+
+      async function loadCSV() {
+        const url = CSV_URL;
+        let text;
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (!res.ok) throw new Error("CSV fetch failed");
+          text = await res.text();
+          try {
+            console.log("[prompter] CSV fetched from:", url);
+            console.log("[prompter] CSV raw preview (first 1000 chars):", text.slice(0, 1000));
+          } catch (e) {}
+        } catch (e) {
+          alert("Could not fetch CSV. Check URL and publish settings.");
+          return;
+        }
+        // Vertical CSV support: first column holds field names; top-left cell is 'Category'
+        if (isVerticalCSV(text)) {
+          const optionsByColumn = optionsFromVerticalCSV(text);
+          console.log('[prompter] Detected vertical CSV. Options by column:', optionsByColumn);
+          populateDropdowns(optionsByColumn);
+          return;
+        }
+        const data = parseCSV(text);
+        try {
+          console.log("[prompter] Parsed CSV rows:", data);
+          console.log("[prompter] Parsed CSV row count:", Array.isArray(data) ? data.length : 0);
+          if (Array.isArray(data) && data.length > 0) {
+            console.log("[prompter] First row object keys:", Object.keys(data[0]));
+            console.log("[prompter] First 3 rows sample:", data.slice(0, 3));
+          }
+        } catch (e) {}
+        // Handle horizontal Bathroom CSV schema with columns: Category, Prompt, Mirror
+        if (Array.isArray(data) && data.length > 0) {
+          const hasCols = (obj) => obj && Object.prototype.hasOwnProperty.call(obj, 'Category') && Object.prototype.hasOwnProperty.call(obj, 'Prompt') && Object.prototype.hasOwnProperty.call(obj, 'Mirror');
+          if (hasCols(data[0])) {
+            horizontalRows = data;
+            console.log('[prompter] Detected Bathroom schema. Rows:', horizontalRows.length);
+            populateCategoryDropdown(horizontalRows);
+            return;
+          }
+        }
+        const optionsByColumn = columnsToOptions(data);
+        try {
+          console.log("[prompter] Options by column:", optionsByColumn);
+          Object.entries(optionsByColumn).forEach(([k, v]) => console.log(`[prompter] Column "${k}" unique values:`, v));
+        } catch (e) {}
+        populateDropdowns(optionsByColumn);
+      }
+
+      function _csvToMatrix(text) {
+        const rows = []; let i = 0, cur = "", inQuotes = false, row = [];
+        while (i < text.length) {
+          const c = text[i];
+          if (c === '"') { if (inQuotes && text[i+1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; } }
+          else if (c === ',' && !inQuotes) { row.push(cur); cur = ""; }
+          else if ((c === '\n' || c === '\r') && !inQuotes) {
+            if (cur.length || row.length) { row.push(cur); rows.push(row); row = []; cur = ""; }
+            if (c === '\r' && text[i+1] === '\n') i++;
+          } else { cur += c; }
+          i++;
+        }
+        if (cur.length || row.length) { row.push(cur); rows.push(row); }
+        return rows.map(r => r.map(x => (x || '').trim()));
+      }
+
+      function isVerticalCSV(text) {
+        const m = _csvToMatrix(text);
+        if (!m.length) return false;
+        const firstCell = (m[0][0] || '').toLowerCase();
+        const nonEmptyHeaderCount = m[0].filter(x => (x || '').trim().length > 0).length;
+        // Vertical when first row only has the word 'Category' and subsequent rows are field name + values
+        return firstCell === 'category' && nonEmptyHeaderCount === 1;
+      }
+
+      function optionsFromVerticalCSV(text) {
+        const m = _csvToMatrix(text);
+        const map = {};
+        for (let r = 1; r < m.length; r++) {
+          const key = (m[r][0] || '').trim();
+          if (!key) continue;
+          const vals = (m[r].slice(1) || []).map(v => (v || '').trim()).filter(Boolean);
+          map[key] = Array.from(new Set(vals));
+        }
+        return map;
+      }
+
+      function parseCSV(text) {
+        // Simple CSV parser for standard cases (quotes supported)
+        const rows = [];
+        let i = 0, cur = "", inQuotes = false, row = [];
+        while (i < text.length) {
+          const c = text[i];
+          if (c === '"') {
+            if (inQuotes && text[i + 1] === '"') { cur += '"'; i++; }
+            else { inQuotes = !inQuotes; }
+          } else if (c === ',' && !inQuotes) {
+            row.push(cur); cur = "";
+          } else if ((c === '\n' || c === '\r') && !inQuotes) {
+            if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); row = []; cur = ""; }
+            // handle \r\n
+            if (c === '\r' && text[i + 1] === '\n') i++;
+          } else {
+            cur += c;
+          }
+          i++;
+        }
+        if (cur.length > 0 || row.length > 0) { row.push(cur); rows.push(row); }
+        // Convert to objects with headers
+        if (rows.length === 0) return [];
+        const headers = rows[0].map(h => h.trim());
+        return rows.slice(1).map(r => {
+          const obj = {};
+          headers.forEach((h, idx) => obj[h] = (r[idx] || "").trim());
+          return obj;
+        });
+      }
+
+      function columnsToOptions(rows) {
+        // Collect unique values per header
+        const keys = rows.length ? Object.keys(rows[0]) : [];
+        const out = {};
+        keys.forEach(k => { out[k] = []; });
+        rows.forEach(r => {
+          keys.forEach(k => {
+            const v = (r[k] || "").trim();
+            if (v && !out[k].includes(v)) out[k].push(v);
+          });
+        });
+        return out;
+      }
+
+      function populateDropdowns(data) {
+        const container = document.getElementById("dropdowns");
+        container.innerHTML = "";
+        Object.entries(data).forEach(([key, options]) => {
+          const label = document.createElement("label");
+          label.textContent = key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+          label.setAttribute("for", key);
+          container.appendChild(label);
+
+          const select = document.createElement("select");
+          select.id = key;
+
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.text = "— Select —";
+          select.appendChild(defaultOption);
+
+          options.forEach(opt => {
+            const option = document.createElement("option");
+            option.value = opt;
+            option.text = opt;
+            select.appendChild(option);
+          });
+
+          container.appendChild(select);
+        });
+      }
+
+      function generatePrompt(values, includeMood, includeTime) {
+        const raw = (k) => (values[k] || "");
+        const toText = (x) => stripUrls((x || "").toLowerCase());
+
+        // Collect image URLs from any selected fields
+        const urls = []
+          .concat(findUrls(raw("table to include")))
+          .concat(findUrls(raw("seating to include")))
+          .concat(findUrls(raw("decorate walls with")))
+          .concat(findUrls(raw("high-end decor to include")));
+
+        const imageCount = urls.length;
+        const startNoun = imageCount >= 2 ? "home goods" : "home good";
+
+        let parts = [];
+
+        // Opening sentence
+        const style = toText(raw("interior design style"));
+        const room  = toText(raw("room type"));
+        if (style && room) parts.push(`Put the attached ${startNoun} in a ${style} ${room}.`);
+        else if (style)    parts.push(`Put the attached ${startNoun} in a scene styled in a ${style} aesthetic.`);
+        else if (room)     parts.push(`Put the attached ${startNoun} in a scene that takes place in a ${room}.`);
+
+        // Space features
+        const flooring = toText(raw("flooring"));
+        const wall     = toText(raw("wall covering"));
+        if (flooring || wall) {
+          let s = `The space features`;
+          if (flooring) s += ` ${flooring} flooring`;
+          if (flooring && wall) s += ` and`;
+          if (wall) s += ` ${wall} walls`;
+          s += `.`;
+          parts.push(s);
+        }
+
+        // Lighting
+        if (raw("lighting")) parts.push(`It is lit with ${toText(raw("lighting"))}.`);
+
+        // Includes
+        const table   = toText(raw("table to include"));
+        const seating = toText(raw("seating to include"));
+        if (table || seating) {
+          let s = `The room includes`;
+          if (table && seating) s += ` a ${table} and a ${seating}`;
+          else if (table)       s += ` a ${table}`;
+          else if (seating)     s += ` a ${seating}`;
+          s += `.`;
+          parts.push(s);
+        }
+
+        // Walls decor
+        if (raw("decorate walls with")) {
+          parts.push(`The walls are styled with ${toText(raw("decorate walls with"))}.`);
+        }
+
+        // High-end decor
+        if (raw("high-end decor to include")) {
+          parts.push(`Finishing touches include a ${toText(raw("high-end decor to include"))}.`);
+        }
+
+        if (includeTime) parts.push(`Golden hour light washes over the room.`);
+        if (includeMood) parts.push(`The mood is serene and softly atmospheric, with ambient sound design.`);
+
+        parts.push(`${endPrompt}.`);
+
+        // Mirror rule: if 'mirror' appears in prompt text or any URL
+        const promptLower = parts.join(" ").toLowerCase();
+        const mirrorInUrls = urls.some(u => /mirror/i.test(u));
+        if (promptLower.includes("mirror") || mirrorInUrls) {
+          parts.push(`Use a realistic reflection that is simple and not distracting.`);
+        }
+
+        return { text: parts.join(" "), urls };
+      }
+
+      function clearSelections() {
+        document.querySelectorAll("select").forEach(s => s.value = "");
+        document.getElementById("output").innerText = "";
+        document.getElementById("copy-btn").style.display = 'none';
+      }
+
+      function generateAllPrompts() {
+        const includeMood = document.getElementById("includeMood")?.checked;
+        const includeTime = document.getElementById("includeTime")?.checked;
+        lastImageUrls = [];
+        let allPrompts = [];
+
+        if (Array.isArray(horizontalRows) && horizontalRows.length) {
+          const catSel = document.getElementById('Category');
+          const chosen = catSel ? (catSel.value || '') : '';
+          // Filter by category if chosen, else use all rows
+          const rows = chosen ? horizontalRows.filter(r => (r['Category']||'') === chosen) : horizontalRows.slice();
+          // If no rows after filter, fall back to all
+          const pool = rows.length ? rows : horizontalRows;
+
+          for (let i = 0; i < 4; i++) {
+            const row = pool[Math.floor(Math.random()*pool.length)];
+            const base = (row['Prompt'] || '');
+            const mirrorField = (row['Mirror'] || '');
+            const urls = []
+              .concat(findUrls(base))
+              .concat(findUrls(mirrorField));
+
+            const imageCount = urls.length;
+            const startNoun = imageCount >= 2 ? 'home goods' : 'home good';
+
+            // Clean prompt text, keep semantics
+            let text = stripUrls(base).trim();
+            // Ensure it references attached item
+            if (!/^put the attached/i.test(text) && !/^create image/i.test(text)) {
+              text = `Put the attached ${startNoun} in a ` + text;
+            } else {
+              // swap noun if it contains 'home good' singular but multiple images present
+              if (imageCount >= 2) text = text.replace(/\bhome good\b/gi, 'home goods');
+            }
+
+            // Optional flags
+            if (includeTime) text += ' Golden hour light washes over the room.';
+            if (includeMood) text += ' The mood is serene and softly atmospheric, with ambient sound design.';
+
+            // Mirror rule
+            const mirrorInUrls = urls.some(u => /mirror/i.test(u));
+            if (/\bmirror\b/i.test(text) || mirrorInUrls) {
+              text += ' Use a realistic reflection that is simple and not distracting.';
+            }
+
+            allPrompts.push(`Prompt ${i+1}:\n${text}`);
+            lastImageUrls.push(...urls);
+          }
+
+          lastImageUrls = Array.from(new Set(lastImageUrls));
+          document.getElementById('output').innerText = allPrompts.join("\n\n");
+          document.getElementById('copy-btn').style.display = 'inline-block';
+          return;
+        }
+
+        // Fallback to legacy multi-field mode
+        const selects = document.querySelectorAll('select');
+        for (let i = 0; i < 4; i++) {
+          let values = {};
+          selects.forEach(select => {
+            const currentValue = select.value.trim();
+            if (currentValue) {
+              values[select.id] = currentValue;
+            } else {
+              const options = Array.from(select.options).filter(opt => opt.value !== '');
+              const random = options[Math.floor(Math.random() * options.length)];
+              values[select.id] = random?.value || '';
+            }
+          });
+          const { text, urls } = generatePrompt(values, includeMood, includeTime);
+          allPrompts.push(`Prompt ${i + 1}:\n${text}`);
+          lastImageUrls.push(...urls);
+        }
+        lastImageUrls = Array.from(new Set(lastImageUrls));
+        document.getElementById('output').innerText = allPrompts.join("\n\n");
+        document.getElementById('copy-btn').style.display = 'inline-block';
+      }
+
+      function randomizeSelections() {
+        const selects = document.querySelectorAll("select");
+        selects.forEach(select => {
+          if (!select.value) {
+            const options = Array.from(select.options).filter(opt => opt.value !== "");
+            if (options.length > 0) {
+              const randomOption = options[Math.floor(Math.random() * options.length)];
+              select.value = randomOption.value;
+            }
+          }
+        });
+      }
+
+      function copyToClipboard() {
+        const text = document.getElementById("output").innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById("copy-btn");
+          btn.innerText = "Copied!";
+          setTimeout(() => { btn.innerText = "Copy to Clipboard"; }, 1500);
+        });
+      }
+
+      function extractImageUrls(text) {
+        // Find http or https URLs, then filter to image extensions
+        const urlRegex = /(https?:\/\/[^\s)"]+)/g;
+        const all = [...text.matchAll(urlRegex)].map(m => m[1]);
+        const imgExt = /\.(png|jpg|jpeg|webp|gif|avif|svg)(\?|#|$)/i;
+        return all.filter(u => imgExt.test(u));
+      }
+
+      async function downloadImage(url) {
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (!res.ok) throw new Error("fetch failed");
+          const blob = await res.blob();
+          const a = document.createElement("a");
+          const u = new URL(url);
+          const name = u.pathname.split("/").pop() || "image";
+          a.href = URL.createObjectURL(blob);
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          return { url, ok: true };
+        } catch (e) {
+          console.warn("Download failed for", url, e);
+          return { url, ok: false, error: e.message };
+        }
+      }
+
+      async function downloadImagesFromOutput() {
+        let urls = Array.isArray(lastImageUrls) && lastImageUrls.length ? lastImageUrls.slice() : null;
+        if (!urls) {
+          const text = document.getElementById("output").innerText || "";
+          urls = (text.match(/https?:\/\/[^\s)"]+/g) || []);
+        }
+        if (!urls.length) { alert("No image URLs to download."); return; }
+
+        const results = [];
+        for (const url of urls) {
+          /* eslint no-await-in-loop: "off" */
+          const r = await downloadImage(url);
+          results.push(r);
+        }
+        const failed = results.filter(r => !r.ok);
+        if (failed.length) alert("Some images could not be downloaded. Likely CORS or 403.");
+      }
+
+      // Always auto load on page load
+      window.addEventListener("load", () => { loadCSV(); });
+    </script>
+  </body>
+</html>
