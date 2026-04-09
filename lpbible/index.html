@@ -287,30 +287,9 @@
 
                         window.location.href = searchUrl;
 
-                    } else if ( document.getElementById("myCheckbox").checked == true ) {
-                        
-                        var newURL = `${baseURL}"${company}"${queryParams}`;
-
-                        const today = new Date();
-                        today.setDate(today.getDate() - 5);
-
-                        // Format the date as "YYYY-MM-DD"
-                        const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-                        newURL += ` after:${formattedDate}`;
-
-                        window.location.href = newURL;
-
                     } else {
-                
-                        var newURL = `${baseURL}"${company}"${queryParams}`;
 
-                        if (newURL.includes("after")) {
-                            const today = new Date();
-                            const formattedDate = `${today.getFullYear()}-${today.getMonth() + 1}-$ - 5}`;
-                            newURL += `${formattedDate}`;
-                        }
-
-                        window.location.href = newURL;
+                        window.location.href = event.target.href;
 
                     }
                 });
