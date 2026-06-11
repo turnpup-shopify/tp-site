@@ -181,10 +181,11 @@
                     var classification = line_array[4].replace(/"/g, "").split(",");
                     line_html += '<div class="ideaText ';
                     for (c in classification){
-                        var tempClass = classification[c].replace("\r","").trimStart();
-                        if (!arrayOfClassifications.includes(tempClass) && tempClass != "" && tempClass != null && tempClass != "\r") {
-                            arrayOfClassifications.push(tempClass);
-                        }  
+                        var displayClass = classification[c].replace("\r","").trim();
+                        var tempClass = displayClass.replace(/\s+/g, '-');
+                        if (!arrayOfClassifications.includes(displayClass) && displayClass != "" && displayClass != null && displayClass != "\r") {
+                            arrayOfClassifications.push(displayClass);
+                        }
                         line_html += tempClass + " ";
                     }
                     line_html += '">';
@@ -227,15 +228,14 @@
             for (var i = 0; i < arrayOfClassifications.length; i++ ) {
                 var temp = arrayOfClassifications[i];
                 if (temp != "" && temp != " " && temp != null && temp.length != 1){
-                    var tempButton= '<button class="tempValue">' + temp + '</button>';
+                    var tempButton= '<button class="tempValue" data-classname="' + temp.replace(/\s+/g, '-') + '">' + temp + '</button>';
                     document.querySelector(".topFilters").innerHTML += tempButton;
                 }
             }
             runIt();
             document.querySelectorAll('.topFilters button').forEach((e) => {
                 e.addEventListener('click', () => {
-                    // console.log(e.innerHTML);
-                    change(e.innerHTML, "blue");                    
+                    change(e.dataset.classname, "blue");
                 })
             });
             $(".ideaList .open").click(function() {
