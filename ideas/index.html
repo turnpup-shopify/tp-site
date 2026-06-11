@@ -27,6 +27,82 @@
     <link rel="stylesheet" type="text/css" href="/css/new.css">
     <link rel="shortcut icon" href="/imgBin/favicon1.ico">
     <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300" rel="stylesheet">
+    <style>
+        .controls-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 16px 20px;
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(6px);
+        }
+        .controls-bar > button {
+            padding: 6px 14px;
+            background: navy;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .controls-bar > button a { color: white; }
+        .controls-bar select {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            font-size: 13px;
+            background: rgba(255,255,255,0.9);
+        }
+        .controls-bar label {
+            color: rgba(255,255,255,0.85);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mode-toggle {
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.35);
+            border-radius: 20px;
+            padding: 3px;
+        }
+        .mode-toggle button {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.55);
+            padding: 4px 14px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.18s;
+        }
+        .mode-toggle button.active {
+            background: white;
+            color: #222;
+            font-weight: 600;
+        }
+        .topFilters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 16px 20px;
+        }
+        .topFilters button.tempValue {
+            padding: 5px 13px;
+            background: rgba(0,0,0,0.35);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.15s;
+        }
+        .topFilters button.tempValue:hover {
+            background: rgba(255,255,255,0.25);
+        }
+    </style>
 </head>
 <body class="gradient">
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T4FHGCC"
@@ -36,29 +112,33 @@
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.js"></script>
     <script src="/js/sets.js"></script>
-    <button style="padding:6px 12px;margin:20px;background:navy;">
-        <a href="../queries/" style="color:white;">Explore Queries</a>
-    </button>
-    <select id="dropdown" style="margin: 20px;">
-        <option value="part0"></option>
-        <option value="part1">Marketing</option>
-        <option value="part2">Business</option>
-        <option value="part3">Strategy</option>
-        <option value="part4">Performance Marketing</option>
-        <option value="part5">Case Study</option>
-        <option value="part6">Customers</option>
-        <option value="part7">Recent How they Improved</option>
-        <option value="part8">Creative</option>
-        <option value="part9">Authenticated</option>
-        <option value="part10">Learn</option>
-        <option value="part11">Launched</option>
-        <option value="part12">Digital / Website</option>
-        <option value="part13">Gen Z</option>
-    </select>
-    <input type="checkbox" id="myCheckbox"> Enable After:
-    <button onclick="tpRandom()"> Random </button>
-    <button onclick="showAll()"> Show All </button>
-    <div class="topFilters" style="margin: 20px;"> </div>
+    <div class="controls-bar">
+        <button><a href="../queries/">Explore Queries</a></button>
+        <select id="dropdown">
+            <option value="part0"></option>
+            <option value="part1">Marketing</option>
+            <option value="part2">Business</option>
+            <option value="part3">Strategy</option>
+            <option value="part4">Performance Marketing</option>
+            <option value="part5">Case Study</option>
+            <option value="part6">Customers</option>
+            <option value="part7">Recent How they Improved</option>
+            <option value="part8">Creative</option>
+            <option value="part9">Authenticated</option>
+            <option value="part10">Learn</option>
+            <option value="part11">Launched</option>
+            <option value="part12">Digital / Website</option>
+            <option value="part13">Gen Z</option>
+        </select>
+        <div class="mode-toggle">
+            <button id="btnGoogle" class="active" onclick="setLinkMode('google')">Google</button>
+            <button id="btnDirect" onclick="setLinkMode('direct')">Direct</button>
+        </div>
+        <label><input type="checkbox" id="myCheckbox"> Enable After</label>
+        <button onclick="tpRandom()">Random</button>
+        <button onclick="showAll()">Show All</button>
+    </div>
+    <div class="topFilters"></div>
     <div class="flexContainer">
         <div class="ideaList" id="one"></div>
         <div class="ideaList" id="two"></div>
@@ -208,12 +288,23 @@
     </script>
 
     <script>
+        var linkMode = 'google';
+        function setLinkMode(mode) {
+            linkMode = mode;
+            document.getElementById('btnGoogle').classList.toggle('active', mode === 'google');
+            document.getElementById('btnDirect').classList.toggle('active', mode === 'direct');
+        }
+    </script>
+    <script>
         // JavaScript to Intercept Button Click and Navigate to New URL
         function runIt(){
             var allAnchors = document.querySelectorAll(".ideaText a");
             for (let i = 0; i < allAnchors.length; i++) {
                 console.log(allAnchors[i].innerText);
                 allAnchors[i].addEventListener("click", function(event) {
+                    if (linkMode === 'direct') {
+                        return; // let the anchor href work naturally
+                    }
                     // Prevent any default behavior (if the button is in a form, for example)
                     event.preventDefault();
                                     
