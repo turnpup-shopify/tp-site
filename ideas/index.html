@@ -492,22 +492,27 @@
     </div>
 
     <script>
+        function urlLabel(url) {
+            try {
+                var u = new URL(url);
+                var label = u.hostname.replace(/^www\./, '') + u.pathname.replace(/\/$/, '');
+                return label.length > 50 ? label.slice(0, 50) + '…' : label;
+            } catch(e) {
+                return url.length > 50 ? url.slice(0, 50) + '…' : url;
+            }
+        }
         function openLinkModal(company, colbUrl, clinksStr) {
             document.getElementById('modalCompanyName').textContent = company;
             var container = document.getElementById('modalLinks');
             container.innerHTML = '';
             var colb = (colbUrl || '').trim();
             if (colb && colb.includes('http')) {
-                var label = colb;
-                try { label = new URL(colb).hostname.replace(/^www\./, ''); } catch(e) {}
-                container.innerHTML += '<a href="' + colb + '" target="_blank"><span class="link-row-label">Website</span>' + label + '</a>';
+                container.innerHTML += '<a href="' + colb + '" target="_blank"><span class="link-row-label">Website</span>' + urlLabel(colb) + '</a>';
             }
             var links = clinksStr.split('||').filter(function(s){ return s.trim(); });
             links.forEach(function(link, idx) {
                 var url = link.trim();
-                var label = url;
-                try { label = new URL(url).hostname.replace(/^www\./, ''); } catch(e) {}
-                container.innerHTML += '<a href="' + url + '" target="_blank"><span class="link-row-label">Link ' + (idx + 1) + '</span>' + label + '</a>';
+                container.innerHTML += '<a href="' + url + '" target="_blank"><span class="link-row-label">Link ' + (idx + 1) + '</span>' + urlLabel(url) + '</a>';
             });
             document.getElementById('linkModal').style.display = 'flex';
         }
