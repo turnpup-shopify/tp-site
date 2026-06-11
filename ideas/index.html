@@ -102,6 +102,70 @@
         .topFilters button.tempValue:hover {
             background: rgba(255,255,255,0.25);
         }
+        #linkModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .link-modal-box {
+            background: #1c1c1c;
+            border-radius: 10px;
+            padding: 22px 24px;
+            min-width: 280px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        }
+        .link-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .link-modal-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+        .link-modal-close:hover { color: white; }
+        .link-modal-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .link-modal-links a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 6px;
+            color: #90c8ff !important;
+            font-size: 13px;
+            text-decoration: none !important;
+            transition: background 0.15s;
+            overflow: hidden;
+        }
+        .link-modal-links a:hover { background: rgba(255,255,255,0.14); }
+        .link-row-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: rgba(255,255,255,0.35);
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: 50px;
+        }
     </style>
 </head>
 <body class="gradient">
@@ -174,9 +238,13 @@
 
                     }
                     let line_html = "<div class='line_container '>";
-                    var component_array = line_array[2].split("|"); 
+                    var colCRaw = line_array[2].replace(/"/g, "").trim();
+                    var colCHasLinks = colCRaw.toLowerCase().includes("http");
+                    var colCLinks = colCHasLinks
+                        ? colCRaw.split(",").map(function(s){ return s.trim(); }).filter(function(s){ return s.includes("http"); })
+                        : [];
+                    var component_array = colCHasLinks ? [] : colCRaw.split("|");
                     var image_array = line_array[3].split("|");
-                    // var classification = line_array[4];    
 
                     var classification = line_array[4].replace(/"/g, "").split(",");
                     line_html += '<div class="ideaText ';
@@ -190,30 +258,27 @@
                     }
                     line_html += '">';
 
-                    // if (!arrayOfClassifications.includes(classification) && classification != "" && classification != null && classification != "\r") {
-                    //     arrayOfClassifications.push(classification);
-                    // }  
-                    // line_html += '<div class="ideaText ' + classification + '">';
-
                     if(line_array[2]=='\r' || line_array[2]=='') {
                         line_html += '<a href="' + line_array[1] + '">' + line_array[0] + '</a></div></div>';
+                    } else if (colCHasLinks) {
+                        var colbUrl = (line_array[1] || '').trim();
+                        line_html += '<a href="' + colbUrl + '" data-clinks="' + colCLinks.join("||") + '" data-colb="' + colbUrl + '">' + line_array[0] + '</a></div></div>';
                     } else {
-                        line_html += '<a href="' + line_array[1] + '">' + line_array[0] + ' </a>';                       
+                        line_html += '<a href="' + line_array[1] + '">' + line_array[0] + ' </a>';
                         for (let i = 0; i < component_array.length; i++) {
                             if (i==0) {
                                 line_html += '<span class="open" data-num=' + i + '>&nbsp;|&nbsp;' + component_array[i].replace(/["']/g, "") + '</span>';
                             } else {
-                                line_html += '<span class="open" data-num=' + i + '>&nbsp;|&nbsp;' + component_array[i].replace(/["']/g, "") + '</span>'; 
-                            } 
-                        }                        
+                                line_html += '<span class="open" data-num=' + i + '>&nbsp;|&nbsp;' + component_array[i].replace(/["']/g, "") + '</span>';
+                            }
+                        }
                         line_html += '</div>';
-                        // console.log("image_array --> " + image_array);
                         for (let j = 0; j < image_array.length; j++) {
                             if (j==0) {
                                 image_html = "<div class='imgContain'>" + '<img class="hide" src="' + image_array[j].replace(/["']/g, "") + '"' + 'data-num=' + j + '>';
                             } else {
                                 image_html += '<img class="hide" src="' + image_array[j].replace(/["']/g, "") + '"' + 'data-num=' + j + '>';
-                            } 
+                            }
                         }
                         line_html += image_html +'</div>';
                     }
@@ -302,6 +367,12 @@
             for (let i = 0; i < allAnchors.length; i++) {
                 console.log(allAnchors[i].innerText);
                 allAnchors[i].addEventListener("click", function(event) {
+                    var clinks = this.dataset.clinks;
+                    if (clinks) {
+                        event.preventDefault();
+                        openLinkModal(this.innerText.trim(), this.dataset.colb, clinks);
+                        return;
+                    }
                     if (linkMode === 'direct') {
                         return; // let the anchor href work naturally
                     }
@@ -407,7 +478,44 @@
                 });
             }
         }
-        
+
+    </script>
+
+    <div id="linkModal" onclick="closeLinkModal(event)">
+        <div class="link-modal-box" onclick="event.stopPropagation()">
+            <div class="link-modal-header">
+                <span id="modalCompanyName"></span>
+                <button class="link-modal-close" onclick="closeLinkModal()">✕</button>
+            </div>
+            <div id="modalLinks" class="link-modal-links"></div>
+        </div>
+    </div>
+
+    <script>
+        function openLinkModal(company, colbUrl, clinksStr) {
+            document.getElementById('modalCompanyName').textContent = company;
+            var container = document.getElementById('modalLinks');
+            container.innerHTML = '';
+            var colb = (colbUrl || '').trim();
+            if (colb && colb.includes('http')) {
+                var label = colb;
+                try { label = new URL(colb).hostname.replace(/^www\./, ''); } catch(e) {}
+                container.innerHTML += '<a href="' + colb + '" target="_blank"><span class="link-row-label">Website</span>' + label + '</a>';
+            }
+            var links = clinksStr.split('||').filter(function(s){ return s.trim(); });
+            links.forEach(function(link, idx) {
+                var url = link.trim();
+                var label = url;
+                try { label = new URL(url).hostname.replace(/^www\./, ''); } catch(e) {}
+                container.innerHTML += '<a href="' + url + '" target="_blank"><span class="link-row-label">Link ' + (idx + 1) + '</span>' + label + '</a>';
+            });
+            document.getElementById('linkModal').style.display = 'flex';
+        }
+        function closeLinkModal(event) {
+            if (!event || event.target === document.getElementById('linkModal')) {
+                document.getElementById('linkModal').style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
