@@ -195,8 +195,8 @@
             <option value="part13">Gen Z</option>
         </select>
         <div class="mode-toggle">
-            <button id="btnGoogle" class="active" onclick="setLinkMode('google')">Google</button>
-            <button id="btnDirect" onclick="setLinkMode('direct')">Direct</button>
+            <button id="btnGoogle" onclick="setLinkMode('google')">Google</button>
+            <button id="btnDirect" class="active" onclick="setLinkMode('direct')">Direct</button>
         </div>
         <label><input type="checkbox" id="myCheckbox"> Enable After</label>
         <button onclick="tpRandom()">Random</button>
@@ -353,7 +353,7 @@
     </script>
 
     <script>
-        var linkMode = 'google';
+        var linkMode = 'direct';
         function setLinkMode(mode) {
             linkMode = mode;
             document.getElementById('btnGoogle').classList.toggle('active', mode === 'google');
