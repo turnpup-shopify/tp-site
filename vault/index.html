@@ -208,15 +208,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script>
-  let allFiles = [];
+  // AUTO-UPDATED by sync_obsidian.sh — do not edit this line manually
+  let allFiles = ["2026-08-14.md", "Ecommerce/CRO/Cart.md", "Ecommerce/CRO/Checkout.md", "Ecommerce/CRO/PDP.md", "Ecommerce/Copy/Copy Criteria.md", "FD-AGENTS.md", "FD-CLAUDE.md", "Welcome.md", "obsidian phone sync..md"]; // SYNC_MANIFEST
 
   async function init() {
-    try {
-      const r = await fetch('manifest.json');
-      if (!r.ok) throw new Error();
-      allFiles = await r.json();
-    } catch {
-      allFiles = [];
+    // If embedded list is empty, try fetching (works on real servers / GitHub Pages)
+    if (allFiles.length === 0) {
+      try {
+        const r = await fetch('manifest.json');
+        if (r.ok) allFiles = await r.json();
+      } catch {}
     }
     renderTree(allFiles);
     if (location.hash) openFile(decodeURIComponent(location.hash.slice(1)));
