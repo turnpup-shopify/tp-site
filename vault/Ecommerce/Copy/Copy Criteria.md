@@ -4,14 +4,24 @@
 * NO semi-colons
 * NO colons
 * No overly long, run on sentences.
-## Header Copy
 
-A+ Criteria (need to do at least 1 of these)
+## Headers
+
+### Idea to Generate Ideas 
+* double meaning of a word. both being positive. 
+* repetition helps cement 
+
+
+### Rules 
 * The headline's claim must be a statement about the problem being solved. Not about the company, its technology, or its credentials. Make sure it's a big problem you are addressing (Test: We found cancer's greatest weakness — early detection.)
 * Should be able to visualize something. Instead of the app that makes the world better --> the app that acts like the doctor in the family
 * What's the big promise? it should be delivering on a bit desire, problem, opportunity, vision
 * If the action/product is disliked then turn that feeling into something loved. (FROM: "Find your doctor's office and schedule an appointment" --> TO: "Fall in love with your doctor's office")
 * Name what the category is, so you position your product as be the exception. (FROM: _Aluminum-free natural deodorant._ (states its own attribute)  --> TO: _Deodorant that isn't a chemistry experiment._ )
+
+### Examples
+* More Vitamin A than C carrots, for only 1.06 dollars / day. *
+
 ## Paragraph Copy
 * Copy should support the header / sub-header.
 * Cut any excessive descriptions or fluffy language. It should get the point across with minimal words when possible.
