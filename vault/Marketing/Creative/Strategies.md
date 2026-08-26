@@ -1,0 +1,2 @@
+* In short-form video, deliberately withhold information so viewers rewatch to catch what they missed, boosting algorithmic performance
+* Create cheap statics (measure resonation with CTR) then move into video
