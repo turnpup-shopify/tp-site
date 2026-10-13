@@ -296,7 +296,7 @@
     document.getElementById('spinner').style.display = 'flex';
 
     try {
-      const r = await fetch(path);
+      const r = await fetch(encodeURI(path));
       if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
       document.getElementById('md-content').innerHTML = marked.parse(await r.text());
     } catch (e) {
