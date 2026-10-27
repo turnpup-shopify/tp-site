@@ -224,8 +224,12 @@
       #sidebar {
         width: 100%; height: auto; border-right: none;
         border-bottom: 1px solid var(--border);
-        display: none; max-height: 50dvh;
+        display: none; max-height: calc(100dvh - 64px);
+        overflow-y: auto; -webkit-overflow-scrolling: touch;
       }
+      /* one scroll area on mobile instead of nested ones */
+      #quick { max-height: none; overflow: visible; }
+      #file-tree { flex: none; overflow: visible; }
       #sidebar.mobile-open { display: flex; }
       #main { overflow-y: auto; }
       #mobile-toggle { display: block; }
