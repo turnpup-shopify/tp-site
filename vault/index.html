@@ -160,6 +160,33 @@
     #breadcrumb { font-size: 13px; color: var(--muted); flex: 1; }
     #breadcrumb span { color: var(--text); font-weight: 600; }
 
+    /* ── Sections (jump-to-heading) menu ── */
+    #toc-wrap { position: relative; flex-shrink: 0; }
+    #toc-btn {
+      font: inherit; font-size: 12px; font-weight: 600; padding: 5px 10px;
+      background: var(--bg); color: var(--text); cursor: pointer;
+      border: 1px solid var(--border); border-radius: 7px;
+    }
+    #toc-btn:hover, #toc-btn.open { border-color: var(--accent); }
+    #toc-menu {
+      display: none; position: absolute; right: 0; top: calc(100% + 6px);
+      width: 280px; max-width: calc(100vw - 32px); max-height: 60dvh; overflow-y: auto;
+      background: var(--sidebar-bg); border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18); padding: 6px 0; z-index: 20;
+    }
+    #toc-menu.open { display: block; }
+    .toc-item {
+      display: block; padding: 6px 14px; font-size: 13px; color: var(--text);
+      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      border-left: 2px solid transparent;
+    }
+    .toc-item:hover { background: rgba(109,40,217,0.08); }
+    .toc-item.current { color: var(--accent-l); font-weight: 600; border-left-color: var(--accent); }
+    .toc-item.l1 { font-weight: 700; }
+    .toc-item.l3 { padding-left: 28px; font-size: 12.5px; color: var(--muted); }
+    .toc-item.l3.current { color: var(--accent-l); }
+    .md h1, .md h2, .md h3, .md h4 { scroll-margin-top: 64px; }
+
     #mobile-toggle {
       display: none; background: none; border: none;
       font-size: 20px; cursor: pointer; padding: 2px 6px; color: var(--text);
@@ -269,6 +296,10 @@
   <div id="topbar">
     <button id="mobile-toggle" onclick="toggleSidebar()">☰</button>
     <div id="breadcrumb">Select a note →</div>
+    <div id="toc-wrap" style="display:none">
+      <button id="toc-btn" onclick="toggleToc()">§ Sections ▾</button>
+      <div id="toc-menu"></div>
+    </div>
   </div>
   <div id="placeholder">
     <div class="big">📝</div>
@@ -488,11 +519,63 @@
     document.getElementById('spinner').style.display = 'none';
     document.getElementById('md-content').style.display = 'block';
     document.getElementById('main').scrollTop = 0;
+    buildToc();
 
     if (window.innerWidth <= 680)
       document.getElementById('sidebar').classList.remove('mobile-open');
   }
 
+
+  // ── Sections menu: jump to any h1–h3 in the open note ──
+  let tocHeadings = [];
+
+  function buildToc() {
+    const used = {};
+    tocHeadings = [...document.querySelectorAll('#md-content h1, #md-content h2, #md-content h3')];
+    tocHeadings.forEach(h => {
+      let id = h.textContent.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-') || 'section';
+      used[id] = (used[id] || 0) + 1;
+      h.id = used[id] > 1 ? `${id}-${used[id]}` : id;
+    });
+    // Indent relative to the shallowest heading level used
+    const top = Math.min(...tocHeadings.map(h => +h.tagName[1]));
+    document.getElementById('toc-menu').innerHTML = tocHeadings.map((h, i) =>
+      `<a class="toc-item l${+h.tagName[1] - top + 1}" data-i="${i}" onclick="jumpTo(${i})">${h.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</a>`
+    ).join('');
+    document.getElementById('toc-wrap').style.display = tocHeadings.length > 1 ? '' : 'none';
+    closeToc();
+    updateCurrentSection();
+  }
+
+  function toggleToc() {
+    const open = !document.getElementById('toc-menu').classList.contains('open');
+    document.getElementById('toc-menu').classList.toggle('open', open);
+    document.getElementById('toc-btn').classList.toggle('open', open);
+    if (open) document.querySelector('.toc-item.current')?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function closeToc() {
+    document.getElementById('toc-menu').classList.remove('open');
+    document.getElementById('toc-btn').classList.remove('open');
+  }
+
+  function jumpTo(i) {
+    tocHeadings[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    closeToc();
+  }
+
+  function updateCurrentSection() {
+    let cur = 0;
+    tocHeadings.forEach((h, i) => { if (h.getBoundingClientRect().top <= 90) cur = i; });
+    document.querySelectorAll('.toc-item').forEach(el =>
+      el.classList.toggle('current', +el.dataset.i === cur));
+  }
+
+  document.getElementById('main').addEventListener('scroll', updateCurrentSection, { passive: true });
+  document.addEventListener('click', e => {
+    if (!document.getElementById('toc-wrap').contains(e.target)) closeToc();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeToc(); });
 
   function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('mobile-open');
