@@ -95,7 +95,8 @@
     }
     .filter-count:empty { display: none; }
     #filters { flex-shrink: 0; padding: 10px 0 4px; border-bottom: 1px solid var(--border); }
-    #filters .qh-chips + .qh-label { margin-top: 10px; }
+    .list-break { height: 1px; background: var(--border); margin: 8px 16px; }
+    .result-path { margin-left: auto; padding-left: 8px; font-size: 11px; color: var(--muted); }
 
     .qh-label {
       padding: 0 16px 6px; font-size: 11px; font-weight: 700;
@@ -129,18 +130,6 @@
     .qh-in-back { animation: qh-back 0.16s ease-out; }
     @keyframes qh-fwd  { from { opacity: 0; transform: translateX(16px); } }
     @keyframes qh-back { from { opacity: 0; transform: translateX(-16px); } }
-
-    .folder-label {
-      display: flex; align-items: center; gap: 5px;
-      padding: 4px 16px; font-size: 11px; font-weight: 700;
-      color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px;
-      cursor: pointer; user-select: none;
-    }
-    .folder-label:hover { color: var(--text); }
-    .folder-toggle { font-size: 9px; transition: transform 0.15s; }
-    .folder-toggle.open { transform: rotate(90deg); }
-
-    .folder-children { overflow: hidden; }
 
     .file-item {
       display: flex; align-items: center; gap: 7px;
@@ -259,9 +248,7 @@
       </button>
     </div>
     <div id="filters" style="display:none">
-      <div class="qh-label">Folders</div>
-      <div class="qh-chips" id="f-folders"></div>
-      <div class="qh-label" id="f-tags-label">Tags</div>
+      <div class="qh-label">Tags</div>
       <div class="qh-chips" id="f-tags"></div>
     </div>
     <div id="file-tree"></div>
@@ -309,48 +296,9 @@
     if (location.hash) openFile(decodeURIComponent(location.hash.slice(1)));
   }
 
-  function renderTree(files) {
-    document.getElementById('file-tree').innerHTML = renderNode(buildTree(files), '');
-  }
-
-  function buildTree(files, base = '') {
-    const root = {};
-    files.forEach(f => {
-      const parts = f.slice(base.length).split('/');
-      let node = root;
-      parts.forEach((p, i) => {
-        if (i === parts.length - 1) {
-          (node.__files = node.__files || []).push({ name: p, path: f });
-        } else {
-          node = (node[p] = node[p] || {});
-        }
-      });
-    });
-    return root;
-  }
-
-  function renderNode(node, prefix) {
-    let html = '';
-    (node.__files || []).sort((a,b) => a.name.localeCompare(b.name)).forEach(f => {
-      const label = f.name.replace(/\.md$/, '');
-      html += `<div class="file-item" data-path="${f.path}" onclick="openFile('${f.path}')" title="${f.path}">
-                 <span class="file-icon">📄</span>${label}</div>`;
-    });
-    Object.keys(node).filter(k => k !== '__files').sort().forEach(folder => {
-      const id = 'fd-' + (prefix + folder).replace(/[^a-z0-9]/gi, '_');
-      html += `<div class="folder-label" onclick="toggleFolder('${id}')">
-                 <span class="folder-toggle open" id="arr-${id}">▶</span>📁 ${folder}
-               </div>
-               <div class="folder-children" id="${id}">
-                 ${renderNode(node[folder], prefix + folder + '/')}
-               </div>`;
-    });
-    return html;
-  }
-
-  // ── Quick hits: drill into folders (each click swaps to the submenu), filter by frontmatter tags ──
+  // ── Tags from frontmatter; folder view state ──
   const fileTags = {};      // path → [tags]
-  let qhPath = [];          // current folder, e.g. ['Ecommerce', 'CRO']
+  let qhPath = [];          // open folder, e.g. ['Ecommerce', 'CRO']
   let qhSelected = new Set();
 
   async function loadTags() {
@@ -388,21 +336,40 @@
   function renderAll() {
     const q = document.getElementById('search').value.toLowerCase().trim();
     const hasTags = f => [...rootTags].every(t => (fileTags[f] || []).includes(t));
-    renderTree(allFiles.filter(f => (!q || f.toLowerCase().includes(q)) && hasTags(f)));
+    let html = '';
 
-    const counts = {};
-    allFiles.forEach(f => {
-      const i = f.indexOf('/');
-      if (i > 0) counts[f.slice(0, i)] = (counts[f.slice(0, i)] || 0) + 1;
-    });
-    document.getElementById('f-folders').innerHTML = Object.keys(counts).sort().map(d =>
-      `<button class="qh-chip" onclick="qhOpen('${d}')">📁 ${d}<span class="n">${counts[d]}</span></button>`
-    ).join('');
+    if (q || rootTags.size) {
+      // Searching / filtering: flat list of every matching note
+      const hits = allFiles.filter(f => (!q || f.toLowerCase().includes(q)) && hasTags(f));
+      html = hits.map(f => {
+        const i = f.lastIndexOf('/');
+        return `<div class="file-item qh-row" data-path="${f}" onclick="openFile('${f}')" title="${f}">
+                  <span class="file-icon">📄</span>${f.slice(i + 1).replace(/\.md$/, '')}<span class="result-path">${i > 0 ? f.slice(0, i) : ''}</span></div>`;
+      }).join('') || '<div class="qh-empty">No matching notes.</div>';
+    } else {
+      // Default: top-level folders, a break, then loose notes
+      const counts = {}, loose = [];
+      allFiles.forEach(f => {
+        const i = f.indexOf('/');
+        if (i > 0) counts[f.slice(0, i)] = (counts[f.slice(0, i)] || 0) + 1;
+        else loose.push(f);
+      });
+      html = Object.keys(counts).sort().map(d =>
+        `<div class="file-item qh-row" onclick="qhOpen('${d}')">
+           <span class="file-icon">📁</span>${d}<span class="qh-count">${counts[d]}</span><span class="qh-chev">›</span></div>`
+      ).join('');
+      if (html && loose.length) html += '<div class="list-break"></div>';
+      html += loose.sort((a, b) => a.localeCompare(b)).map(f =>
+        `<div class="file-item qh-row" data-path="${f}" onclick="openFile('${f}')" title="${f}">
+           <span class="file-icon">📄</span>${f.replace(/\.md$/, '')}</div>`
+      ).join('');
+    }
+    document.getElementById('file-tree').innerHTML = html;
 
     const tagCounts = {};
     allFiles.forEach(f => (fileTags[f] || []).forEach(t => tagCounts[t] = (tagCounts[t] || 0) + 1));
     const tags = Object.keys(tagCounts).sort();
-    document.getElementById('f-tags-label').style.display = tags.length ? '' : 'none';
+    document.getElementById('filter-toggle').style.display = tags.length ? '' : 'none';
     document.getElementById('f-tags').innerHTML = tags.map(t =>
       `<button class="qh-chip tag${rootTags.has(t) ? ' on' : ''}" onclick="toggleRootTag('${t}')">#${t}<span class="n">${tagCounts[t]}</span></button>`
     ).join('');
@@ -490,15 +457,6 @@
   function markActive() {
     document.querySelectorAll('.file-item').forEach(el =>
       el.classList.toggle('active', !!currentFile && el.dataset.path === currentFile));
-  }
-
-  function toggleFolder(id) {
-    const el = document.getElementById(id);
-    const arr = document.getElementById('arr-' + id);
-    if (!el) return;
-    const open = el.style.display !== 'none';
-    el.style.display = open ? 'none' : '';
-    arr.classList.toggle('open', !open);
   }
 
   let currentFile = null;
