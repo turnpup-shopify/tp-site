@@ -96,9 +96,18 @@
     .qh-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
     .qh-chip .n { opacity: 0.6; margin-left: 3px; }
     .qh-chip.tag { font-size: 11px; padding: 2px 8px; }
-    #qh-panel { margin-top: 10px; }
-    #qh-tags { margin-bottom: 6px; }
+    #qh-tags:not(:empty) { margin-bottom: 6px; }
     .qh-empty { padding: 4px 16px; font-size: 12px; color: var(--muted); }
+    .qh-crumb { cursor: pointer; }
+    .qh-crumb:hover { color: var(--text); }
+    .qh-crumb.cur { color: var(--text); cursor: default; }
+    .qh-row { padding-left: 16px; }
+    .qh-row .qh-count { margin-left: auto; font-size: 11px; color: var(--muted); }
+    .qh-row .qh-chev { color: var(--muted); font-size: 11px; }
+    .qh-in-fwd  { animation: qh-fwd 0.16s ease-out; }
+    .qh-in-back { animation: qh-back 0.16s ease-out; }
+    @keyframes qh-fwd  { from { opacity: 0; transform: translateX(16px); } }
+    @keyframes qh-back { from { opacity: 0; transform: translateX(-16px); } }
 
     .folder-label {
       display: flex; align-items: center; gap: 5px;
@@ -221,11 +230,10 @@
     <input id="search" type="search" placeholder="Search files..." oninput="filterTree(this.value)">
   </div>
   <div id="quick">
-    <div class="qh-label">Folders</div>
-    <div class="qh-chips" id="qh-folders"></div>
-    <div id="qh-panel" style="display:none">
+    <div class="qh-label" id="qh-head"></div>
+    <div id="qh-body">
       <div class="qh-chips" id="qh-tags"></div>
-      <div id="qh-tree"></div>
+      <div id="qh-list"></div>
     </div>
   </div>
   <div id="file-tree"></div>
@@ -302,9 +310,9 @@
     return html;
   }
 
-  // ── Quick hits: top-level folder → tree, filterable by frontmatter tags ──
+  // ── Quick hits: drill into folders (each click swaps to the submenu), filter by frontmatter tags ──
   const fileTags = {};      // path → [tags]
-  let qhFolder = null;
+  let qhPath = [];          // current folder, e.g. ['Ecommerce', 'CRO']
   let qhSelected = new Set();
 
   async function loadTags() {
@@ -328,41 +336,64 @@
     return raw.map(t => t.trim().replace(/^["'#]|["']$/g, '')).filter(Boolean);
   }
 
-  function renderQuick() {
-    const counts = {};
-    allFiles.forEach(f => {
-      const i = f.indexOf('/');
-      if (i > 0) counts[f.slice(0, i)] = (counts[f.slice(0, i)] || 0) + 1;
-    });
-    document.getElementById('qh-folders').innerHTML = Object.keys(counts).sort().map(d =>
-      `<button class="qh-chip${d === qhFolder ? ' on' : ''}" onclick="pickFolder('${d}')">📁 ${d}<span class="n">${counts[d]}</span></button>`
-    ).join('');
+  function renderQuick(dir) {
+    const base = qhPath.length ? qhPath.join('/') + '/' : '';
+    const inScope = allFiles.filter(f => f.startsWith(base));
 
-    const panel = document.getElementById('qh-panel');
-    if (!qhFolder) { panel.style.display = 'none'; return; }
-    panel.style.display = '';
-
-    const base = qhFolder + '/';
-    const inFolder = allFiles.filter(f => f.startsWith(base));
+    // Tags only make sense inside a folder; drop selections that don't exist here
     const tagCounts = {};
-    inFolder.forEach(f => (fileTags[f] || []).forEach(t => tagCounts[t] = (tagCounts[t] || 0) + 1));
-    const tags = Object.keys(tagCounts).sort();
-    document.getElementById('qh-tags').innerHTML = tags.map(t =>
+    if (base) inScope.forEach(f => (fileTags[f] || []).forEach(t => tagCounts[t] = (tagCounts[t] || 0) + 1));
+    qhSelected.forEach(t => { if (!tagCounts[t]) qhSelected.delete(t); });
+    const matches = f => [...qhSelected].every(t => (fileTags[f] || []).includes(t));
+    const shown = inScope.filter(matches);
+
+    const crumbs = ['Folders', ...qhPath];
+    document.getElementById('qh-head').innerHTML = crumbs.map((c, i) =>
+      i === crumbs.length - 1
+        ? `<span class="qh-crumb cur">${c}</span>`
+        : `<span class="qh-crumb" onclick="qhGo(${i})">${i === 0 ? '‹ ' : ''}${c}</span>`
+    ).join(' / ');
+
+    document.getElementById('qh-tags').innerHTML = Object.keys(tagCounts).sort().map(t =>
       `<button class="qh-chip tag${qhSelected.has(t) ? ' on' : ''}" onclick="toggleTag('${t}')">#${t}<span class="n">${tagCounts[t]}</span></button>`
     ).join('');
 
-    const shown = inFolder.filter(f => [...qhSelected].every(t => (fileTags[f] || []).includes(t)));
-    document.getElementById('qh-tree').innerHTML = shown.length
-      ? renderNode(buildTree(shown, base), 'qh-' + base)
-      : '<div class="qh-empty">No notes match these tags.</div>';
-    if (currentFile) document.querySelectorAll('#qh-tree .file-item').forEach(el =>
+    // Immediate subfolders (with matching-note counts) and files directly in this folder
+    const sub = {}, here = [];
+    shown.forEach(f => {
+      const rest = f.slice(base.length), i = rest.indexOf('/');
+      if (i > 0) sub[rest.slice(0, i)] = (sub[rest.slice(0, i)] || 0) + 1;
+      else if (base) here.push(f);
+    });
+    let html = Object.keys(sub).sort().map(d =>
+      `<div class="file-item qh-row" onclick="qhOpen('${d}')">
+         <span class="file-icon">📁</span>${d}<span class="qh-count">${sub[d]}</span><span class="qh-chev">›</span></div>`
+    ).join('');
+    html += here.sort().map(f =>
+      `<div class="file-item qh-row" data-path="${f}" onclick="openFile('${f}')" title="${f}">
+         <span class="file-icon">📄</span>${f.slice(base.length).replace(/\.md$/, '')}</div>`
+    ).join('');
+    document.getElementById('qh-list').innerHTML = html || '<div class="qh-empty">No notes match these tags.</div>';
+    if (currentFile) document.querySelectorAll('#qh-list .file-item').forEach(el =>
       el.classList.toggle('active', el.dataset.path === currentFile));
+
+    if (dir) {
+      const body = document.getElementById('qh-body');
+      body.classList.remove('qh-in-fwd', 'qh-in-back');
+      void body.offsetWidth;
+      body.classList.add(dir === 'fwd' ? 'qh-in-fwd' : 'qh-in-back');
+    }
   }
 
-  function pickFolder(d) {
-    qhFolder = qhFolder === d ? null : d;
-    qhSelected.clear();
-    renderQuick();
+  function qhOpen(d) {
+    qhPath.push(d);
+    renderQuick('fwd');
+  }
+
+  function qhGo(depth) {
+    qhPath = qhPath.slice(0, depth);
+    if (!depth) qhSelected.clear();
+    renderQuick('back');
   }
 
   function toggleTag(t) {
