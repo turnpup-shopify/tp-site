@@ -1,2 +1,0 @@
-Robinhood
-* Through App
