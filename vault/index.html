@@ -77,6 +77,29 @@
       flex: 1; overflow-y: auto; padding: 8px 0;
     }
 
+    /* ── Quick hits ── */
+    #quick {
+      flex-shrink: 0; max-height: 45%; overflow-y: auto;
+      padding: 10px 0 8px; border-bottom: 1px solid var(--border);
+    }
+    .qh-label {
+      padding: 0 16px 6px; font-size: 11px; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .qh-chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 16px; }
+    .qh-chip {
+      font: inherit; font-size: 12px; padding: 3px 9px;
+      border: 1px solid var(--border); border-radius: 999px;
+      background: var(--bg); color: var(--text); cursor: pointer;
+    }
+    .qh-chip:hover { border-color: var(--accent); }
+    .qh-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .qh-chip .n { opacity: 0.6; margin-left: 3px; }
+    .qh-chip.tag { font-size: 11px; padding: 2px 8px; }
+    #qh-panel { margin-top: 10px; }
+    #qh-tags { margin-bottom: 6px; }
+    .qh-empty { padding: 4px 16px; font-size: 12px; color: var(--muted); }
+
     .folder-label {
       display: flex; align-items: center; gap: 5px;
       padding: 4px 16px; font-size: 11px; font-weight: 700;
@@ -197,6 +220,14 @@
     <div class="sidebar-title">Vault</div>
     <input id="search" type="search" placeholder="Search files..." oninput="filterTree(this.value)">
   </div>
+  <div id="quick">
+    <div class="qh-label">Folders</div>
+    <div class="qh-chips" id="qh-folders"></div>
+    <div id="qh-panel" style="display:none">
+      <div class="qh-chips" id="qh-tags"></div>
+      <div id="qh-tree"></div>
+    </div>
+  </div>
   <div id="file-tree"></div>
 </div>
 
@@ -227,6 +258,8 @@
       } catch {}
     }
     renderTree(allFiles);
+    renderQuick();
+    loadTags();
     if (location.hash) openFile(decodeURIComponent(location.hash.slice(1)));
   }
 
@@ -234,10 +267,10 @@
     document.getElementById('file-tree').innerHTML = renderNode(buildTree(files), '');
   }
 
-  function buildTree(files) {
+  function buildTree(files, base = '') {
     const root = {};
     files.forEach(f => {
-      const parts = f.split('/');
+      const parts = f.slice(base.length).split('/');
       let node = root;
       parts.forEach((p, i) => {
         if (i === parts.length - 1) {
@@ -267,6 +300,74 @@
                </div>`;
     });
     return html;
+  }
+
+  // ── Quick hits: top-level folder → tree, filterable by frontmatter tags ──
+  const fileTags = {};      // path → [tags]
+  let qhFolder = null;
+  let qhSelected = new Set();
+
+  async function loadTags() {
+    await Promise.all(allFiles.map(async f => {
+      try {
+        const r = await fetch(encodeURI(f));
+        if (r.ok) fileTags[f] = parseTags(await r.text());
+      } catch {}
+    }));
+    renderQuick();
+  }
+
+  function parseTags(text) {
+    const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!fm) return [];
+    const m = fm[1].match(/^tags:[ \t]*(.*)$((?:\r?\n[ \t]*-.*)*)/m);
+    if (!m) return [];
+    const raw = m[1].trim()
+      ? m[1].replace(/^\[|\]$/g, '').split(',')
+      : m[2].split('\n').map(l => l.replace(/^\s*-\s*/, ''));
+    return raw.map(t => t.trim().replace(/^["'#]|["']$/g, '')).filter(Boolean);
+  }
+
+  function renderQuick() {
+    const counts = {};
+    allFiles.forEach(f => {
+      const i = f.indexOf('/');
+      if (i > 0) counts[f.slice(0, i)] = (counts[f.slice(0, i)] || 0) + 1;
+    });
+    document.getElementById('qh-folders').innerHTML = Object.keys(counts).sort().map(d =>
+      `<button class="qh-chip${d === qhFolder ? ' on' : ''}" onclick="pickFolder('${d}')">📁 ${d}<span class="n">${counts[d]}</span></button>`
+    ).join('');
+
+    const panel = document.getElementById('qh-panel');
+    if (!qhFolder) { panel.style.display = 'none'; return; }
+    panel.style.display = '';
+
+    const base = qhFolder + '/';
+    const inFolder = allFiles.filter(f => f.startsWith(base));
+    const tagCounts = {};
+    inFolder.forEach(f => (fileTags[f] || []).forEach(t => tagCounts[t] = (tagCounts[t] || 0) + 1));
+    const tags = Object.keys(tagCounts).sort();
+    document.getElementById('qh-tags').innerHTML = tags.map(t =>
+      `<button class="qh-chip tag${qhSelected.has(t) ? ' on' : ''}" onclick="toggleTag('${t}')">#${t}<span class="n">${tagCounts[t]}</span></button>`
+    ).join('');
+
+    const shown = inFolder.filter(f => [...qhSelected].every(t => (fileTags[f] || []).includes(t)));
+    document.getElementById('qh-tree').innerHTML = shown.length
+      ? renderNode(buildTree(shown, base), 'qh-' + base)
+      : '<div class="qh-empty">No notes match these tags.</div>';
+    if (currentFile) document.querySelectorAll('#qh-tree .file-item').forEach(el =>
+      el.classList.toggle('active', el.dataset.path === currentFile));
+  }
+
+  function pickFolder(d) {
+    qhFolder = qhFolder === d ? null : d;
+    qhSelected.clear();
+    renderQuick();
+  }
+
+  function toggleTag(t) {
+    qhSelected.has(t) ? qhSelected.delete(t) : qhSelected.add(t);
+    renderQuick();
   }
 
   function toggleFolder(id) {
