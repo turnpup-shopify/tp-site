@@ -301,8 +301,11 @@
       <button class="fv-back" id="fv-back" onclick="qhGo(qhPath.length - 1)"></button>
       <div class="fv-path" id="fv-path"></div>
       <div class="fv-title" id="fv-title"></div>
+      <button class="filter-toggle" id="fv-tags-toggle" onclick="toggleFolderTags()">
+        Tags <span class="filter-count" id="fv-tags-count"></span><span class="chev">▼</span>
+      </button>
     </div>
-    <div class="qh-chips" id="qh-tags"></div>
+    <div class="qh-chips" id="qh-tags" style="display:none"></div>
     <div id="qh-list"></div>
   </div>
 </div>
@@ -446,6 +449,8 @@
     document.getElementById('qh-tags').innerHTML = Object.keys(tagCounts).sort().map(t =>
       `<button class="qh-chip tag${qhSelected.has(t) ? ' on' : ''}" onclick="toggleTag('${t}')">#${t}<span class="n">${tagCounts[t]}</span></button>`
     ).join('');
+    document.getElementById('fv-tags-toggle').style.display = Object.keys(tagCounts).length ? '' : 'none';
+    document.getElementById('fv-tags-count').textContent = qhSelected.size || '';
 
     const sub = {}, here = [];
     shown.forEach(f => {
@@ -478,15 +483,25 @@
     document.getElementById('view-folder').style.display = inFolder ? '' : 'none';
   }
 
+  // Folder tags start collapsed each time a folder is opened
+  function toggleFolderTags(open) {
+    const el = document.getElementById('qh-tags');
+    if (open === undefined) open = el.style.display === 'none';
+    el.style.display = open ? '' : 'none';
+    document.getElementById('fv-tags-toggle').classList.toggle('open', open);
+  }
+
   function qhOpen(d) {
     qhPath.push(d);
     showView();
+    toggleFolderTags(false);
     renderQuick('fwd');
   }
 
   function qhGo(depth) {
     qhPath = qhPath.slice(0, depth);
     showView();
+    toggleFolderTags(false);
     if (qhPath.length) return renderQuick('back');
     qhSelected.clear();
     const view = document.getElementById('view-all');
