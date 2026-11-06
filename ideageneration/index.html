@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-58905914-1');
+    </script>
+    <title>Idea Generation</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="built by: alex turney">
+    <link rel="shortcut icon" href="/imgBin/favicon1.ico">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: #faf8f5; color: #222; line-height: 1.5;
+        }
+        main { max-width: 760px; margin: 0 auto; padding: 40px 20px 100px; }
+        h1 { font-size: 28px; margin: 0 0 4px; }
+        .sub { color: #666; margin: 0 0 24px; font-size: 15px; }
+        input[type=text], textarea {
+            width: 100%; padding: 10px 12px; font-size: 15px; font-family: inherit;
+            border: 1px solid #d6d1c8; border-radius: 8px; background: #fff;
+        }
+        textarea { resize: vertical; min-height: 60px; }
+        #topic { font-size: 18px; padding: 12px 14px; }
+        .tabs { display: flex; gap: 6px; margin: 22px 0 18px; border-bottom: 1px solid #e5e1da; }
+        .tabs button {
+            background: none; border: none; padding: 10px 14px; font-size: 15px; cursor: pointer;
+            color: #777; border-bottom: 2px solid transparent; margin-bottom: -1px;
+        }
+        .tabs button.on { color: #222; border-color: #222; font-weight: 600; }
+        .count { background: #222; color: #fff; border-radius: 10px; font-size: 11px; padding: 1px 7px; margin-left: 4px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        .card {
+            background: #fff; border: 1px solid #e5e1da; border-radius: 10px; padding: 14px;
+            cursor: pointer; text-align: left; font: inherit; color: inherit;
+        }
+        .card:hover { border-color: #999; }
+        .card.on { border-color: #222; box-shadow: 0 0 0 1px #222; }
+        .card b { display: block; font-size: 15px; }
+        .card span { font-size: 13px; color: #777; }
+        .card .n { float: right; font-size: 11px; color: #3b7a57; font-weight: 600; }
+        .row-btns { display: flex; gap: 8px; margin: 14px 0 0; flex-wrap: wrap; }
+        .btn {
+            background: #222; color: #fff; border: none; border-radius: 8px; padding: 9px 14px;
+            font-size: 14px; cursor: pointer;
+        }
+        .btn.ghost { background: #fff; color: #222; border: 1px solid #ccc; }
+        .btn.small { padding: 5px 10px; font-size: 13px; }
+        .work { margin-top: 26px; background: #fff; border: 1px solid #e5e1da; border-radius: 12px; padding: 22px; }
+        .work h2 { margin: 0 0 6px; font-size: 22px; }
+        .move { color: #444; margin: 0 0 4px; }
+        .best { color: #888; font-size: 13px; margin: 0 0 18px; }
+        .draw { background: #f3ecd6; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .draw strong { font-size: 17px; }
+        .section { margin-top: 18px; }
+        .section h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: #888; margin: 0 0 8px; }
+        .section h3 em { text-transform: none; letter-spacing: 0; font-style: normal; color: #aaa; font-weight: 400; }
+        .line { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+        .line .num { width: 22px; text-align: right; color: #bbb; font-size: 13px; flex-shrink: 0; }
+        .star {
+            background: none; border: 1px solid #ddd; border-radius: 6px; width: 36px; height: 38px;
+            cursor: pointer; font-size: 17px; color: #ccc; flex-shrink: 0;
+        }
+        .star.on { color: #d99a00; border-color: #e8c66a; background: #fff8e3; }
+        .hint { font-size: 13px; color: #999; margin-top: 10px; }
+        .empty { color: #999; text-align: center; padding: 40px 0; }
+        .idea { background: #fff; border: 1px solid #e5e1da; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+        .idea-top { display: flex; gap: 8px; align-items: flex-start; }
+        .idea-top input { font-weight: 600; }
+        .src { font-size: 12px; color: #999; margin: 4px 0 10px; }
+        .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+        .filters label {
+            border: 1px solid #ddd; border-radius: 20px; padding: 5px 12px; font-size: 13px; cursor: pointer; user-select: none;
+        }
+        .filters label.on { background: #dcefe3; border-color: #3b7a57; color: #23553a; }
+        .filters input { display: none; }
+        .score { margin-left: auto; font-size: 13px; color: #888; align-self: center; }
+        details { margin-top: 8px; border-top: 1px solid #f0ede7; padding-top: 8px; }
+        summary { cursor: pointer; font-size: 14px; font-weight: 600; color: #444; }
+        summary span { font-weight: 400; color: #999; }
+        details .body { margin-top: 8px; }
+        details label.f { display: block; font-size: 13px; color: #666; margin: 8px 0 4px; }
+        .x { background: none; border: none; color: #bbb; font-size: 20px; cursor: pointer; padding: 6px; }
+        .x:hover { color: #b5523b; }
+        .combine { background: #fff; border: 1px dashed #c9c2b6; border-radius: 10px; padding: 16px; margin-bottom: 18px; }
+        .combine h3 { margin: 0 0 4px; font-size: 16px; }
+        .combine p { margin: 0 0 10px; font-size: 13px; color: #777; }
+        .combine .pick { display: flex; gap: 8px; margin-bottom: 8px; }
+        select { flex: 1; padding: 9px; font-size: 14px; border: 1px solid #d6d1c8; border-radius: 8px; background: #fff; min-width: 0; }
+        .footer { margin-top: 40px; display: flex; gap: 8px; justify-content: flex-end; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #222; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Idea Generation</h1>
+    <p class="sub">Generate first, judge later. Star the ideas worth keeping, then sharpen them in a separate pass.</p>
+
+    <input type="text" id="topic" placeholder="Topic or problem, e.g. &quot;get more people to try my newsletter&quot;">
+
+    <div class="tabs">
+        <button data-tab="generate">1. Generate</button>
+        <button data-tab="sharpen">2. Sharpen <span class="count" id="bankCount">0</span></button>
+    </div>
+
+    <div id="generate"></div>
+    <div id="sharpen"></div>
+
+    <div class="footer">
+        <button class="btn ghost small" id="copyAll">Copy as markdown</button>
+        <button class="btn ghost small" id="resetAll">Start over</button>
+    </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const NOUNS = ['lighthouse','vending machine','grandmother','subway','sourdough','chess clock','karaoke','umbrella','passport','beehive','library card','ferris wheel','thermostat','postcard','tattoo','referee','campfire','elevator','wedding','museum','scoreboard','alarm clock','menu','backpack','garden','podcast','bicycle','receipt','mirror','fortune cookie','map','lottery','orchestra','toolbox','diary','parade','dentist','treasure hunt','snow globe','fire drill'];
+const CONSTRAINTS = ['It has to be free.','You have to ship it in 2 days.','It can only have one feature.','It\'s for a 7-year-old.','It costs 10× more.','No screens allowed.','It has to work offline.','You have $100 total.','It must take under 10 seconds to use.','Only 100 people can ever have it.','It has to be done by hand.','It must be explained in 5 words.','Your competitor gives it away for free.','It has to be fun at a funeral.','It has to work for someone who can\'t read.'];
+const WORLDS = ['nature','a Formula 1 pit crew','a hospital ER','a monastery','an airline','a casino','a kindergarten','a restaurant kitchen','the military','a theme park','a library','an ant colony','video games','a wedding planner','a magician','a stand-up comedian','a luxury hotel','a fire department','a farmers market','a jazz band'];
+const pick = (arr, n) => [...arr].sort(() => Math.random() - .5).slice(0, n);
+
+const FRAMEWORKS = [
+    { id: 'altucher', name: "Altucher's 10 ideas", move: "Write 10 ideas on one topic, no judging. Stuck? Make it 20. The pressure is the problem.", best: 'Daily base workout',
+      sections: w => [{ key: 'ideas', label: 'Ideas', n: w.twenty ? 20 : 10 }] },
+    { id: 'scamper', name: 'SCAMPER', move: 'Run the thing through 7 lenses.', best: 'Improving something that exists',
+      sections: () => [
+        ['s','Substitute','What could you swap out?'], ['c','Combine','What could you merge it with?'], ['a','Adapt','What else is like this you could borrow from?'],
+        ['m','Modify / Magnify','What if it were bigger, smaller, louder, more often?'], ['p','Put to other use','Who else could use this, or for what?'],
+        ['e','Eliminate','What could you remove entirely?'], ['r','Reverse','What if you flipped the order, roles, or direction?']
+      ].map(([key,label,hint]) => ({ key, label, hint, n: 2 })) },
+    { id: 'first', name: 'First principles', move: 'Strip to undeniable truths ("what is this for?"), then rebuild without inherited assumptions. Dyson: a vacuum separates dust from air, so why a bag?', best: 'You suspect the whole category is wrong',
+      sections: () => [
+        { key: 'assume', label: 'Inherited assumptions', hint: 'What does everyone just accept?', n: 4 },
+        { key: 'truths', label: 'Undeniable truths', hint: 'What is this actually for?', n: 4 },
+        { key: 'rebuild', label: 'Rebuilt from scratch', n: 4 } ] },
+    { id: 'inversion', name: 'Inversion', move: 'Ask "how would I guarantee this fails?" then reverse each answer.', best: "Anything you're stuck on; finds hidden constraints",
+      sections: () => [
+        { key: 'fail', label: 'How I\'d guarantee failure', n: 6 },
+        { key: 'reverse', label: 'Each one reversed', n: 6 } ] },
+    { id: 'hmw', name: 'How Might We', move: 'Reframe the problem 5 different ways before solving. Too broad = useless; too narrow = embedded solution.', best: "You're anchored on one solution",
+      sections: () => [
+        { key: 'frames', label: 'How might we…', n: 5, prefix: 'How might we ' },
+        { key: 'ideas', label: 'Ideas from the best frame', n: 5 } ] },
+    { id: 'constraints', name: 'Forced constraints', move: 'Impose an artificial constraint and see what it forces.', best: 'Ideas feel incremental; also keeps novelty up over time',
+      draw: () => pick(CONSTRAINTS, 3), drawLabel: 'Your constraints',
+      sections: w => w.draw.map((c, i) => ({ key: 'c' + i, label: c, n: 3 })) },
+    { id: 'analog', name: 'Analogous worlds', move: 'How would another world solve this? Steal the mechanism, not the surface.', best: "You need something that doesn't look like the competition",
+      draw: () => pick(WORLDS, 3), drawLabel: 'Your worlds',
+      sections: w => w.draw.map((c, i) => ({ key: 'w' + i, label: 'How does ' + c + ' solve this?', n: 2 })) },
+    { id: 'combo', name: 'Combinatorial play', move: 'Take two random nouns and force a connection to your problem.', best: 'Pure muscle-building; loosens habitual paths',
+      draw: () => pick(NOUNS, 2), drawLabel: 'Your nouns',
+      sections: w => [{ key: 'ideas', label: w.draw.join(' + ') + ' → your problem', n: 5 }] },
+    { id: 'worst', name: 'Worst possible idea', move: "Generate the 10 worst ideas, then ask what's secretly good in each.", best: 'Group is tense or everyone is being "sensible"',
+      sections: () => [
+        { key: 'worst', label: 'Worst ideas', n: 10 },
+        { key: 'good', label: "What's secretly good", n: 5 } ] },
+    { id: 'unnamed', name: 'Name the Unnamed', move: 'Find a behaviour your audience already does but has no word for. Label it, confess it, prove it, ask "is it just me?"', best: 'Content that needs to be shared, not just watched. Recognition beats information.',
+      sections: () => [
+        { key: 'behaviour', label: 'Unnamed behaviours', hint: 'Things they do but never talk about', n: 3 },
+        { key: 'label', label: 'The label', hint: 'Medical or legal register works', n: 3 },
+        { key: 'confess', label: 'Confess it as your own flaw', n: 1, area: true },
+        { key: 'montage', label: 'Fast montage: proof it\'s real', n: 4 },
+        { key: 'ask', label: '"Is it just me?" closer', n: 1 } ] }
+];
+
+const HATS = [
+    ['white','⚪ Facts','What do we know? What\'s missing?'], ['red','🔴 Feelings','Gut reaction, no justification.'],
+    ['black','⚫ Risks','What could go wrong?'], ['yellow','🟡 Benefits','Why could this work?'],
+    ['green','🟢 Creativity','Alternatives, tweaks, wild versions.'], ['blue','🔵 Process','What\'s the next step and who does it?']
+];
+
+const KEY = 'ideageneration';
+let state = Object.assign({ topic: '', tab: 'generate', fw: null, work: {}, ideas: [] }, JSON.parse(localStorage.getItem(KEY) || '{}'));
+const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const $ = id => document.getElementById(id);
+const fwById = id => FRAMEWORKS.find(f => f.id === id);
+
+function workFor(fw) {
+    if (!state.work[fw.id]) state.work[fw.id] = { vals: {} };
+    const w = state.work[fw.id];
+    if (fw.draw && !w.draw) w.draw = fw.draw();
+    return w;
+}
+const filledCount = id => Object.values(state.work[id]?.vals || {}).filter(v => v.trim()).length;
+const ideaByRef = ref => state.ideas.find(i => i.ref === ref);
+
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1400); }
+
+/* ---------- Generate ---------- */
+function renderGenerate() {
+    const el = $('generate');
+    let html = '<div class="grid">' + FRAMEWORKS.map(f => {
+        const n = filledCount(f.id);
+        return `<button class="card${state.fw === f.id ? ' on' : ''}" data-fw="${f.id}">${n ? `<span class="n">${n}</span>` : ''}<b>${esc(f.name)}</b><span>${esc(f.best)}</span></button>`;
+    }).join('') + '</div>';
+    html += `<div class="row-btns"><button class="btn ghost small" id="surprise">🎲 Surprise me</button></div>`;
+
+    const fw = fwById(state.fw);
+    if (fw) {
+        const w = workFor(fw);
+        html += `<div class="work"><h2>${esc(fw.name)}</h2><p class="move">${esc(fw.move)}</p><p class="best">Best when: ${esc(fw.best)}</p>`;
+        if (fw.draw) html += `<div class="draw"><div><span style="font-size:12px;color:#8a7a4a">${fw.drawLabel}</span><br><strong>${w.draw.map(esc).join(' · ')}</strong></div><button class="btn ghost small" id="reroll">🎲 Reroll</button></div>`;
+        fw.sections(w).forEach(s => {
+            html += `<div class="section"><h3>${esc(s.label)}${s.hint ? ` <em>${esc(s.hint)}</em>` : ''}</h3>`;
+            for (let i = 0; i < s.n; i++) {
+                const ref = `${fw.id}:${s.key}:${i}`;
+                const v = w.vals[ref] ?? (s.prefix || '');
+                const field = s.area
+                    ? `<textarea data-ref="${ref}">${esc(v)}</textarea>`
+                    : `<input type="text" data-ref="${ref}" value="${esc(v)}">`;
+                html += `<div class="line">${s.n > 1 ? `<span class="num">${i + 1}</span>` : ''}${field}<button class="star${ideaByRef(ref) ? ' on' : ''}" data-star="${ref}" title="Keep this idea">★</button></div>`;
+            }
+            html += '</div>';
+        });
+        if (fw.id === 'altucher' && !w.twenty) html += `<div class="row-btns"><button class="btn ghost small" id="twenty">Stuck? Make it 20</button></div>`;
+        html += `<p class="hint">★ an idea to send it to Sharpen. Don't judge yet.</p></div>`;
+    }
+    el.innerHTML = html;
+}
+
+$('generate').addEventListener('click', e => {
+    const card = e.target.closest('[data-fw]');
+    if (card) { state.fw = card.dataset.fw === state.fw ? null : card.dataset.fw; save(); renderGenerate(); return; }
+    if (e.target.id === 'surprise') { const opts = FRAMEWORKS.filter(f => f.id !== state.fw); state.fw = opts[Math.floor(Math.random() * opts.length)].id; save(); renderGenerate(); return; }
+    const fw = fwById(state.fw);
+    if (e.target.id === 'reroll') { const w = workFor(fw); w.draw = fw.draw(); save(); renderGenerate(); return; }
+    if (e.target.id === 'twenty') { workFor(fw).twenty = true; save(); renderGenerate(); return; }
+    const star = e.target.closest('[data-star]');
+    if (star) {
+        const ref = star.dataset.star;
+        const existing = ideaByRef(ref);
+        if (existing) { state.ideas = state.ideas.filter(i => i !== existing); star.classList.remove('on'); }
+        else {
+            const text = (workFor(fw).vals[ref] || '').trim();
+            if (!text) { toast('Write something first'); return; }
+            state.ideas.push({ id: Date.now() + '' + Math.random().toString(36).slice(2, 6), ref, text, source: fw.name, filters: {}, notes: {} });
+            star.classList.add('on'); toast('Kept for sharpening');
+        }
+        save(); updateCount();
+    }
+});
+
+$('generate').addEventListener('input', e => {
+    const ref = e.target.dataset.ref;
+    if (!ref) return;
+    const fw = fwById(state.fw);
+    workFor(fw).vals[ref] = e.target.value;
+    const idea = ideaByRef(ref);
+    if (idea) idea.text = e.target.value.trim();
+    save();
+    const badge = document.querySelector(`[data-fw="${fw.id}"]`);
+    const n = filledCount(fw.id);
+    let span = badge.querySelector('.n');
+    if (n && !span) { span = document.createElement('span'); span.className = 'n'; badge.prepend(span); }
+    if (span) n ? span.textContent = n : span.remove();
+});
+
+/* ---------- Sharpen ---------- */
+function renderSharpen() {
+    const el = $('sharpen');
+    if (!state.ideas.length) { el.innerHTML = '<p class="empty">No ideas kept yet. Go generate, then ★ the ones worth a second look.</p>'; return; }
+    const opts = state.ideas.map(i => `<option value="${i.id}">${esc(i.text.slice(0, 60))}</option>`).join('');
+    let html = '';
+    if (state.ideas.length > 1) html += `<div class="combine"><h3>Idea sex</h3><p>Take your top two ideas and combine them. The hybrid is often better than either.</p>
+        <div class="pick"><select id="mixA">${opts}</select><select id="mixB">${opts}</select></div>
+        <input type="text" id="mixOut" placeholder="The hybrid…"><div class="row-btns"><button class="btn small" id="mixAdd">Add hybrid</button></div></div>`;
+
+    const sorted = [...state.ideas].sort((a, b) => score(b) - score(a));
+    html += sorted.map(i => {
+        const f = i.filters, n = i.notes;
+        const hatCount = HATS.filter(([k]) => (n['hat_' + k] || '').trim()).length;
+        return `<div class="idea" data-id="${i.id}">
+            <div class="idea-top"><input type="text" data-field="text" value="${esc(i.text)}"><button class="x" data-del title="Remove">×</button></div>
+            <div class="src">from ${esc(i.source)}</div>
+            <div class="filters">
+                ${[['novel','Novel','Not just unique'],['useful','Useful','Who wants this, badly?'],['feasible','Feasible','Can you name the next step?']].map(([k,l,t]) =>
+                    `<label class="${f[k] ? 'on' : ''}" title="${t}"><input type="checkbox" data-filter="${k}"${f[k] ? ' checked' : ''}>${f[k] ? '✓ ' : ''}${l}</label>`).join('')}
+                <span class="score">${score(i)}/3 filters</span>
+            </div>
+            <input type="text" data-field="next" value="${esc(n.next)}" placeholder="Next step (if you can't name one, it's too big)">
+            <details${n.premortem ? ' open' : ''}><summary>Pre-mortem <span>12 months later it flopped. Write the obituary.</span></summary><div class="body">
+                <textarea data-field="premortem" placeholder="It died because…">${esc(n.premortem)}</textarea>
+                <label class="f">Fix what you can, drop what you can't</label><textarea data-field="fixes">${esc(n.fixes)}</textarea></div></details>
+            <details${n.steelman ? ' open' : ''}><summary>Steelman the opposite <span>Strongest case it's wrong.</span></summary><div class="body">
+                <textarea data-field="steelman" placeholder="This is a bad idea because…">${esc(n.steelman)}</textarea></div></details>
+            <details${hatCount ? ' open' : ''}><summary>Six Thinking Hats <span>${hatCount ? hatCount + '/6' : 'One mode at a time.'}</span></summary><div class="body">
+                ${HATS.map(([k,l,h]) => `<label class="f">${l}: ${h}</label><textarea data-field="hat_${k}" rows="2">${esc(n['hat_' + k])}</textarea>`).join('')}</div></details>
+        </div>`;
+    }).join('');
+    el.innerHTML = html;
+    const b = $('mixB'); if (b && b.options[1]) b.selectedIndex = 1;
+}
+const score = i => ['novel','useful','feasible'].filter(k => i.filters[k]).length;
+const ideaById = id => state.ideas.find(i => i.id === id);
+
+$('sharpen').addEventListener('input', e => {
+    const card = e.target.closest('[data-id]');
+    if (!card || !e.target.dataset.field) return;
+    const idea = ideaById(card.dataset.id), k = e.target.dataset.field;
+    if (k === 'text') idea.text = e.target.value; else idea.notes[k] = e.target.value;
+    save();
+});
+$('sharpen').addEventListener('change', e => {
+    const card = e.target.closest('[data-id]');
+    if (card && e.target.dataset.filter) { ideaById(card.dataset.id).filters[e.target.dataset.filter] = e.target.checked; save(); renderSharpen(); }
+});
+$('sharpen').addEventListener('click', e => {
+    if (e.target.dataset.del !== undefined) {
+        const card = e.target.closest('[data-id]');
+        state.ideas = state.ideas.filter(i => i.id !== card.dataset.id); save(); renderSharpen(); updateCount();
+    }
+    if (e.target.id === 'mixAdd') {
+        const text = $('mixOut').value.trim();
+        if (!text) { toast('Write the hybrid first'); return; }
+        const a = ideaById($('mixA').value), b = ideaById($('mixB').value);
+        state.ideas.push({ id: Date.now() + '', ref: null, text, source: `Idea sex: "${a.text.slice(0, 30)}" + "${b.text.slice(0, 30)}"`, filters: {}, notes: {} });
+        save(); renderSharpen(); updateCount(); toast('Hybrid added');
+    }
+});
+
+/* ---------- Shell ---------- */
+function updateCount() { $('bankCount').textContent = state.ideas.length; }
+function setTab(t) {
+    state.tab = t; save();
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+    $('generate').style.display = t === 'generate' ? '' : 'none';
+    $('sharpen').style.display = t === 'sharpen' ? '' : 'none';
+    t === 'generate' ? renderGenerate() : renderSharpen();
+}
+document.querySelector('.tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) setTab(b.dataset.tab); });
+
+$('topic').value = state.topic;
+$('topic').addEventListener('input', e => { state.topic = e.target.value; save(); });
+
+$('resetAll').addEventListener('click', () => {
+    if (!confirm('Clear the topic, all generated ideas and kept ideas?')) return;
+    state = { topic: '', tab: 'generate', fw: null, work: {}, ideas: [] };
+    $('topic').value = ''; save(); updateCount(); setTab('generate');
+});
+
+$('copyAll').addEventListener('click', () => {
+    let md = `# Ideas: ${state.topic || 'untitled'}\n`;
+    FRAMEWORKS.forEach(f => {
+        const w = state.work[f.id];
+        if (!w || !filledCount(f.id)) return;
+        md += `\n## ${f.name}\n`;
+        f.sections(w).forEach(s => {
+            const lines = [...Array(s.n)].map((_, i) => (w.vals[`${f.id}:${s.key}:${i}`] || '').trim()).filter(Boolean);
+            if (lines.length) md += `\n**${s.label}**\n` + lines.map(l => `- ${l}`).join('\n') + '\n';
+        });
+    });
+    if (state.ideas.length) {
+        md += `\n## Kept ideas\n`;
+        [...state.ideas].sort((a, b) => score(b) - score(a)).forEach(i => {
+            md += `\n### ${i.text} (${score(i)}/3)\n`;
+            const passed = ['novel','useful','feasible'].filter(k => i.filters[k]);
+            if (passed.length) md += `- Passes: ${passed.join(', ')}\n`;
+            const n = i.notes;
+            if (n.next) md += `- Next step: ${n.next}\n`;
+            if (n.premortem) md += `- Pre-mortem: ${n.premortem}\n`;
+            if (n.fixes) md += `- Fixes: ${n.fixes}\n`;
+            if (n.steelman) md += `- Steelman: ${n.steelman}\n`;
+            HATS.forEach(([k, l]) => { if (n['hat_' + k]) md += `- ${l}: ${n['hat_' + k]}\n`; });
+        });
+    }
+    navigator.clipboard.writeText(md).then(() => toast('Copied'));
+});
+
+updateCount();
+setTab(state.tab);
+</script>
+</body>
+</html>
