@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58905914-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-58905914-1');
+    </script>
+    <title>Is it a real desire?</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="built by: alex turney">
+    <link rel="shortcut icon" href="/imgBin/favicon1.ico">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: #faf8f5;
+            color: #222;
+            line-height: 1.5;
+        }
+        main { max-width: 620px; margin: 0 auto; padding: 48px 20px 80px; }
+        h1 { font-size: 28px; margin: 0 0 8px; }
+        .intro { color: #555; font-size: 15px; margin-bottom: 32px; }
+        .intro a { color: #555; }
+        label.goal { display: block; font-weight: 600; margin-bottom: 6px; }
+        input[type=text] {
+            width: 100%; padding: 12px 14px; font-size: 16px;
+            border: 1px solid #ccc; border-radius: 8px; background: #fff;
+        }
+        .q { background: #fff; border: 1px solid #e5e1da; border-radius: 10px; padding: 16px 18px; margin-top: 14px; }
+        .q .tag { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #999; }
+        .q .text { font-size: 17px; margin: 2px 0 12px; }
+        .scale { display: flex; gap: 6px; }
+        .scale button {
+            flex: 1; padding: 10px 0; font-size: 15px; cursor: pointer;
+            border: 1px solid #ddd; border-radius: 6px; background: #f6f4f0; color: #333;
+        }
+        .scale button.on { background: #222; color: #fff; border-color: #222; }
+        .ends { display: flex; justify-content: space-between; font-size: 12px; color: #999; margin-top: 4px; }
+        .controlled .scale button.on { background: #b5523b; border-color: #b5523b; }
+        .autonomous .scale button.on { background: #3b7a57; border-color: #3b7a57; }
+        #result { margin-top: 28px; padding: 20px; border-radius: 10px; display: none; }
+        #result h2 { margin: 0 0 6px; font-size: 22px; }
+        #result p { margin: 0; }
+        #result.borrowed { background: #f7e3dd; }
+        #result.real { background: #dcefe3; }
+        #result.mixed { background: #f3ecd6; }
+        #result.weak { background: #ebe9e5; }
+        .bars { display: flex; gap: 16px; margin-top: 14px; font-size: 13px; }
+        .bars div { flex: 1; }
+        .bar { height: 8px; background: rgba(0,0,0,.1); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+        .bar span { display: block; height: 100%; }
+        #reset { margin-top: 20px; background: none; border: none; color: #888; text-decoration: underline; cursor: pointer; font-size: 14px; padding: 0; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Is it a real desire?</h1>
+    <p class="intro">
+        Sheldon &amp; Elliot sort the reasons people chase a goal from <em>controlled</em> to <em>autonomous</em>:
+        external regulation (rewards, punishments), introjected regulation (guilt, shame), identified regulation (values),
+        and intrinsic enjoyment. Reaching a controlled goal does little for you: those motives aren't linked to need
+        satisfaction, so hitting them barely moves well-being.
+        (<a href="https://selfdeterminationtheory.org/" target="_blank">SDT</a>)
+    </p>
+
+    <label class="goal" for="goal">What do you think you want?</label>
+    <input type="text" id="goal" placeholder="e.g. run a marathon, get promoted, buy a house">
+
+    <div id="questions"></div>
+
+    <div id="result">
+        <h2 id="verdict"></h2>
+        <p id="explain"></p>
+        <div class="bars">
+            <div>Controlled (borrowed)<div class="bar"><span id="barC" style="background:#b5523b"></span></div></div>
+            <div>Autonomous (yours)<div class="bar"><span id="barA" style="background:#3b7a57"></span></div></div>
+        </div>
+    </div>
+    <button id="reset">Start over</button>
+</main>
+
+<script>
+    const QUESTIONS = [
+        { text: "I'd get approval, or avoid judgment.", tag: "External", type: "controlled" },
+        { text: "I'd feel guilty or behind if I didn't.", tag: "Introjected", type: "controlled" },
+        { text: "It fits something I value.", tag: "Identified", type: "autonomous" },
+        { text: "I'd enjoy the day to day of it.", tag: "Intrinsic", type: "autonomous" }
+    ];
+    const KEY = 'desire-check';
+    let state = JSON.parse(localStorage.getItem(KEY) || '{"goal":"","scores":[0,0,0,0]}');
+
+    const qWrap = document.getElementById('questions');
+    QUESTIONS.forEach((q, i) => {
+        const el = document.createElement('div');
+        el.className = 'q ' + q.type;
+        el.innerHTML = `<div class="tag">${q.tag}</div><div class="text">${q.text}</div>
+            <div class="scale">${[1,2,3,4,5].map(n => `<button data-q="${i}" data-n="${n}">${n}</button>`).join('')}</div>
+            <div class="ends"><span>Not at all</span><span>Very true</span></div>`;
+        qWrap.appendChild(el);
+    });
+
+    qWrap.addEventListener('click', e => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        state.scores[+b.dataset.q] = +b.dataset.n;
+        save(); render();
+    });
+
+    const goalInput = document.getElementById('goal');
+    goalInput.value = state.goal;
+    goalInput.addEventListener('input', () => { state.goal = goalInput.value; save(); render(); });
+
+    document.getElementById('reset').addEventListener('click', () => {
+        state = { goal: "", scores: [0,0,0,0] };
+        goalInput.value = "";
+        save(); render();
+    });
+
+    function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    function render() {
+        document.querySelectorAll('.scale button').forEach(b => {
+            b.classList.toggle('on', state.scores[+b.dataset.q] === +b.dataset.n);
+        });
+        const s = state.scores;
+        const res = document.getElementById('result');
+        if (s.includes(0)) { res.style.display = 'none'; return; }
+
+        const controlled = (s[0] + s[1]) / 2;
+        const autonomous = (s[2] + s[3]) / 2;
+        const goal = state.goal.trim() ? `"${state.goal.trim()}"` : 'This';
+        let cls, verdict, explain;
+
+        if (controlled >= 3.5 && autonomous < 3.5) {
+            cls = 'borrowed'; verdict = 'Probably borrowed';
+            explain = `${goal} is mostly driven by approval, guilt, or feeling behind. Getting it likely won't make you much happier. Whose desire is this, really?`;
+        } else if (controlled >= 3.5 && autonomous >= 3.5) {
+            cls = 'mixed'; verdict = 'Real, but tangled';
+            explain = `You value ${goal === 'This' ? 'this' : goal} and would enjoy it, but pressure is doing a lot of the pushing. Try to separate the part you'd want with no one watching.`;
+        } else if (autonomous >= 3.5) {
+            cls = 'real'; verdict = 'Looks like a real desire';
+            explain = `${goal} comes from your values and the day-to-day appeals to you. This is the kind of goal that actually pays off in well-being.`;
+        } else {
+            cls = 'weak'; verdict = 'Not much pull either way';
+            explain = `${goal} isn't strongly driven by pressure or by genuine interest. It may not be worth the effort right now.`;
+        }
+
+        res.className = cls;
+        res.style.display = 'block';
+        document.getElementById('verdict').textContent = verdict;
+        document.getElementById('explain').textContent = explain;
+        document.getElementById('barC').style.width = ((controlled - 1) / 4 * 100) + '%';
+        document.getElementById('barA').style.width = ((autonomous - 1) / 4 * 100) + '%';
+    }
+    render();
+</script>
+</body>
+</html>
